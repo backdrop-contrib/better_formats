@@ -1,0 +1,70 @@
+<?php
+// $Id$
+
+/**
+ * Implementation of hook_schema()
+ */
+function better_formats_schema() {
+  $schema['better_formats_defaults'] = array(
+    'fields' => array(
+      'rid' => array(
+        'type'     => 'int',
+        'size'     => 'normal',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'type' => array(
+        'type'     => 'varchar',
+        'length'   => 255,
+        'not null' => TRUE,
+      ),
+      'format' => array(
+        'type' => 'int',
+        'size' => 'medium',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'type_weight' => array(
+        'type'     => 'int',
+        'size'     => 'tiny',
+        'default'  => 0,
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'weight' => array(
+        'type'     => 'int',
+        'size'     => 'tiny',
+        'default'  => 0,
+        'unsigned' => FALSE,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('rid', 'type'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implementation of hook_install()
+ */
+function better_formats_install() {
+  // create tables
+  drupal_install_schema('better_formats');
+  // insert defaults
+  $roles = user_roles();
+  $sql   = "INSERT INTO {better_formats_defaults} 
+            VALUES (%d, '%s', %d, %d, %d)";
+  foreach ($roles as $rid => $role) {
+    db_query($sql, $rid, 'node', 0, 1, 0);
+    db_query($sql, $rid, 'comment', 0, 1, 0);
+  }
+}
+
+/**
+ * Implementation of hook_uninstall()
+ */
+function better_formats_uninstall(){
+  drupal_uninstall_schema('better_formats');
+  // need to delete settings variables from varible table
+}
