@@ -1,8 +1,6 @@
 <?php
 // $Id$
 
-ini_set('display_errors', 'on');
-
 /**
  * Implementation of hook_help()
  */
@@ -71,15 +69,11 @@ function better_formats_form_alter(&$form, $form_state, $form_id) {
   // while $form['#id'] is always 'node-form'
   switch ($form['#id']) {
     case 'comment-form':
-      if (empty($form['cid']['#value'])) {
-        better_formats_set_comment_format($form);
-      }
+      better_formats_set_comment_format($form);
       break;
       
     case 'node-form':
-      if (empty($form['nid']['#value'])) {
-        better_formats_set_node_format($form);
-      }
+      better_formats_set_node_format($form);
       break;
   }
   
@@ -124,8 +118,7 @@ function better_formats_content_type_admin_form(&$form, $form_state) {
     '#title' => t('Input format settings'),
     '#access' => user_access('administer filters'),
     '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
-    //'#theme' => 'better_formats_content_admin_form',
+    '#collapsed' => TRUE,
   );
   $allowed_key = $key . '_allowed';
   $form[$key][$allowed_key] = array(
@@ -234,14 +227,20 @@ function better_formats_textarea_process($element, $edit, $form_state, $form) {
 	$field = $form['#field_info'][$element['#field_name']];
 	
   // we only affect new node forms and let users selection guide existing entries	
-	if ( ! isset($form_state['values']['nid']) && ! empty($field['text_processing'])) {
-    // set default format
-    $element['#value']['format'] = better_formats_get_default_format('node', $form['type']['#value']);
-    
+	if ( ! empty($field['text_processing'])) {
+    // get core default for new or selected format for existing
     $filter_key = (count($element['#columns']) == 2) ? $element['#columns'][1] : 'format';
     $format     = isset($element['#value'][$filter_key]) ? $element['#value'][$filter_key] : FILTER_FORMAT_DEFAULT;
     $parents    = array_merge($element['#parents'] , array($filter_key));
     
+    // overwrite format default if new node
+    if ( ! isset($form_state['values']['nid'])) {
+      $format = better_formats_get_default_format('node', $form['type']['#value']);
+    }
+    
+    // set default format for cck textarea
+    $element['#value'][$filter_key] = $format;
+    // set filter selection form
     $element[$filter_key] = better_formats_filter_form($format, 1, $parents);
   }
 	
@@ -249,21 +248,32 @@ function better_formats_textarea_process($element, $edit, $form_state, $form) {
 }
 
 function better_formats_set_node_format(&$form) {
-  $default = better_formats_get_default_format('node', $form['type']['#value']);
-
-  // set body field
+  // set core body field
   if (isset($form['body_field'])) {
-  	$form['body_field']['format'] = better_formats_filter_form($default);
+    // get existing format for core body field
+    $format = $form['body_field']['format'][1]['#default_value'];
+    
+    // only get default for new entries
+    if (empty($form['nid']['#value'])) {
+      $format = better_formats_get_default_format('node', $form['type']['#value']);
+    }
+  
+  	$form['body_field']['format'] = better_formats_filter_form($format);
   }
 }
 
 function better_formats_set_comment_format(&$form) {
-  $node = node_load($form['nid']['#value']);
-	$default = better_formats_get_default_format('comment', $node->type);
-  
-  // set body field
   if (isset($form['comment_filter']['format'])) {
-  	$form['comment_filter']['format'] = better_formats_filter_form($default);
+    // get existing format for comment
+    $format = $form['comment_filter']['format'][1]['#default_value'];
+    
+    // only get default for new entries
+    if (empty($form['cid']['#value'])) {
+      $node = node_load($form['nid']['#value']);
+	    $format = better_formats_get_default_format('comment', $node->type);
+    }
+  
+  	$form['comment_filter']['format'] = better_formats_filter_form($format);
   }
 }
 
@@ -317,10 +327,11 @@ function better_formats_get_default_format($mode, $node_type = '') {
  * @param 
  * @return array FAPI array for the format of a textarea
  */
-function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $weight = NULL, $parents = array('format')) {
+function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $weight = 1, $parents = array('format')) {
   global $better_formats_node_type;
   
   $node_type = $better_formats_node_type;
+  
   $value     = filter_resolve_format($value);
   $formats   = filter_formats();
   
@@ -344,8 +355,6 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $weight = NU
   $expanded       = variable_get('better_formats_default_expanded', FALSE);
   $noncollapse    = variable_get('better_formats_noncollapse', FALSE);
   $fieldset_title = variable_get('better_formats_fieldset_title', 'Input format');
-
-  $extra = theme('filter_tips_more_info');
 
   if (count($formats) > 1 && ! $hide_selection) {
     $form = array(
@@ -371,12 +380,13 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $weight = NU
         '#id' => form_clean_id('edit-'. implode('-', $parents_for_id)),
       );
       if ( ! $hide_tips) {
-      	$form[$format->format]['#description'] = theme('filter_tips', _filter_tips($format->format, FALSE));
+      	$extra = theme('filter_tips_more_info');
+        $form[$format->format]['#description'] = theme('filter_tips', _filter_tips($format->format, FALSE));
 	      $form[] = array('#value' => $extra);
       }
     }
   } else {
-    // Only one format available: use a hidden form item.
+    // Only one format available or hiding the form: use a hidden form item.
     $format = $formats[$default];
     $form[$format->format] = array(
     	'#type' => 'value', 
@@ -384,7 +394,8 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $weight = NU
     	'#parents' => $parents
     );
     if ( ! $hide_tips) {
-	    $tips = _filter_tips($format->format, FALSE);
+      $extra = theme('filter_tips_more_info');
+	    $tips  = _filter_tips($format->format, FALSE);
 	    $form['format']['guidelines'] = array(
 	      '#title' => t('Formatting guidelines'),
 	      '#value' => theme('filter_tips', $tips, FALSE, $extra),
