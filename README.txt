@@ -20,11 +20,12 @@ Installation:
 2. Enable the module via the modules page.
 
 Use:
-1. Navigate to Site Configuration > Input formats (/admin/settings/filters)
-2. There you will find 2 tabs where you can change your settings. 
+1. Go to user permissions (/admin/user/permissions) and set your permissions.
+2. Navigate to Site Configuration > Input formats (/admin/settings/filters)
+3. There you will find 2 tabs where you can change your settings. 
     Defaults (/admin/settings/filters/defauts) 
     Settings (/admin/settings/filters/settings)
-3. If you enable the "Control formats per node type" option. Go to your content
+4. If you enable the "Control formats per node type" option. Go to your content
    type admin page to set those settings (example /admin/content/node-type/page).
    The settings are under the Input format settings fieldset.
    

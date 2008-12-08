@@ -15,6 +15,16 @@ function better_formats_help($path, $arg) {
   return $output;
 }
 
+
+function better_formats_perm() {
+  return array(
+    'show format selection',
+    'show format tips',
+    'collapse format fieldset by default',
+    'collapsible format selection',
+  );
+}
+
 /**
  * Implementation of hook_menu()
  * @return array array of menu items
@@ -350,18 +360,19 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $weight = 1,
   // else we fall back to the site default format
   $default = isset($formats[$value]) ? $formats[$value]->format : filter_resolve_format(FILTER_FORMAT_DEFAULT);
   
-  $hide_selection = variable_get('better_formats_hide_format_selection', FALSE);
-  $hide_tips      = variable_get('better_formats_hide_format_tips', FALSE);
-  $expanded       = variable_get('better_formats_default_expanded', FALSE);
-  $noncollapse    = variable_get('better_formats_noncollapse', FALSE);
-  $fieldset_title = variable_get('better_formats_fieldset_title', 'Input format');
+  $show_selection = user_access('show format selection');
+  $show_tips      = user_access('show format tips');
 
-  if (count($formats) > 1 && ! $hide_selection) {
+  if (count($formats) > 1 && $show_selection) {
+    $collapsed      = user_access('collapse format fieldset by default');
+    $collapsible    = user_access('collapsible format selection');
+    $fieldset_title = variable_get('better_formats_fieldset_title', 'Input format');
+    
     $form = array(
       '#type' => 'fieldset',
       '#title' => t('@title', array('@title' => $fieldset_title ? $fieldset_title : 'Input format')),
-      '#collapsible' => ! $noncollapse,
-      '#collapsed' => ! $expanded,
+      '#collapsible' => $collapsible,
+      '#collapsed' => $collapsed,
       '#weight' => $weight,
       '#element_validate' => array('filter_form_validate'),
     );
@@ -379,7 +390,7 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $weight = 1,
         '#parents' => $parents,
         '#id' => form_clean_id('edit-'. implode('-', $parents_for_id)),
       );
-      if ( ! $hide_tips) {
+      if ($show_tips) {
       	$extra = theme('filter_tips_more_info');
         $form[$format->format]['#description'] = theme('filter_tips', _filter_tips($format->format, FALSE));
 	      $form[] = array('#value' => $extra);
@@ -393,7 +404,7 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $weight = 1,
     	'#value' => $format->format, 
     	'#parents' => $parents
     );
-    if ( ! $hide_tips) {
+    if ($show_tips) {
       $extra = theme('filter_tips_more_info');
 	    $tips  = _filter_tips($format->format, FALSE);
 	    $form['format']['guidelines'] = array(

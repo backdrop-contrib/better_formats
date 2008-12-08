@@ -59,6 +59,21 @@ function better_formats_install() {
     db_query($sql, $rid, 'node', 0, 1, 0);
     db_query($sql, $rid, 'comment', 0, 1, 0);
   }
+  
+  // default perms to be like core defaults
+  $default_perms = ',show format selection,show format tips,collapsible format selection,collapse format fieldset by default';
+  // get current perms
+  $sql = "SELECT * FROM {permission}";
+  $result = db_query($sql);
+  $row_perms = array();
+  while ($row = db_fetch_object($result)) {
+    $role_perms[] = $row;
+  }
+  // add perms to all roles
+  foreach ($role_perms as $perms) {
+    $sql = "UPDATE {permission} SET perm = '%s' WHERE pid = %d";
+    db_query($sql, $perms->perm . $default_perms, $perms->pid);
+  }
 }
 
 /**
@@ -66,5 +81,7 @@ function better_formats_install() {
  */
 function better_formats_uninstall(){
   drupal_uninstall_schema('better_formats');
-  // need to delete settings variables from varible table
+  // delete settings variables from varible table
+  $sql = "DELETE FROM {variable} WHERE name LIKE 'better_formats%'";
+  db_query($sql);
 }

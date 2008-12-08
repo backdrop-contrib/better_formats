@@ -8,36 +8,11 @@ function better_formats_settings_admin_form() {
     '#type' => 'fieldset',
     '#title' => t('Display'),
   );
-  
-  $form[$key]['better_formats_hide_format_selection'] = array(
-    '#type' => 'checkbox',
-    '#default_value' => variable_get('better_formats_hide_format_selection', 0),
-    '#title' => t('Hide format selection'),
-    '#description' => t('Hides the format selection fieldset leaving only the default format tips.'),
-  );
-  $form[$key]['better_formats_hide_format_tips'] = array(
-    '#type'  => 'checkbox',
-    '#default_value' => variable_get('better_formats_hide_format_tips', 0),
-    '#title' => t('Hide format tips'),
-    '#description' => t('Hides the format tips leaving only the format selection or nothing if the "Hide format selection" option is checked.'),
-  );
-  $form[$key]['better_formats_default_expanded'] = array(
-    '#type'  => 'checkbox',
-    '#default_value' => variable_get('better_formats_default_expanded', 0),
-    '#title' => t('Expand fieldset by default'),
-    '#description' => t('Expands the Input formats fieldset by default.'),
-  );
-  $form[$key]['better_formats_noncollapse'] = array(
-    '#type'  => 'checkbox',
-    '#default_value' => variable_get('better_formats_noncollapse', 0),
-    '#title' => t('Disable fieldset collapse'),
-    '#description' => t('Removes the ability for the user to collapse the fieldset.'),
-  );
   $form[$key]['better_formats_fieldset_title'] = array(
     '#type'  => 'textfield',
     '#default_value' => variable_get('better_formats_fieldset_title', ''),
     '#title' => t('Selection title'),
-    '#description' => t('Change the format selection fieldset title. Defaults to "Input format"'),
+    '#description' => t('Change the format selection title. Defaults to "Input format"'),
   );
   
   
