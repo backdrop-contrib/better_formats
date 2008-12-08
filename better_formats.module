@@ -236,7 +236,6 @@ function better_formats_elements() {
 function better_formats_textarea_process($element, $edit, $form_state, $form) {
 	$field = $form['#field_info'][$element['#field_name']];
 	
-  // we only affect new node forms and let users selection guide existing entries	
 	if ( ! empty($field['text_processing'])) {
     // get core default for new or selected format for existing
     $filter_key = (count($element['#columns']) == 2) ? $element['#columns'][1] : 'format';
@@ -260,31 +259,46 @@ function better_formats_textarea_process($element, $edit, $form_state, $form) {
 function better_formats_set_node_format(&$form) {
   // set core body field
   if (isset($form['body_field'])) {
-    // get existing format for core body field
-    $format = $form['body_field']['format'][1]['#default_value'];
-    
     // only get default for new entries
     if (empty($form['nid']['#value'])) {
       $format = better_formats_get_default_format('node', $form['type']['#value']);
+    } else {
+      // get existing format for core body field
+      $format = better_formats_get_current_format($form['body_field']['format']);
     }
-  
+    // overwrite the filter form with our own
   	$form['body_field']['format'] = better_formats_filter_form($format);
   }
 }
 
 function better_formats_set_comment_format(&$form) {
   if (isset($form['comment_filter']['format'])) {
-    // get existing format for comment
-    $format = $form['comment_filter']['format'][1]['#default_value'];
-    
     // only get default for new entries
     if (empty($form['cid']['#value'])) {
       $node = node_load($form['nid']['#value']);
 	    $format = better_formats_get_default_format('comment', $node->type);
+    } else {
+      // get existing format for comment
+      $format = better_formats_get_current_format($form['comment_filter']['format']);
     }
-  
+    // overwrite the filter form with our own
   	$form['comment_filter']['format'] = better_formats_filter_form($format);
   }
+}
+
+function better_formats_get_current_format($form) {
+  foreach (element_children($form) as $key) {
+    $element = $format = $form['body_field']['format'][$key];
+    if ($element['#type'] === 'radio' && isset($element['#default_value'])) {
+      $format = $element['#default_value'];
+      break;
+    }
+    if ($element['#type'] === 'value' && isset($element['#value'])) {
+      $format = $element['#value'];
+      break;
+    }
+  }
+  return $format;
 }
 
 function better_formats_get_default_format($mode, $node_type = '') {
@@ -412,7 +426,15 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $weight = 1,
 	      '#value' => theme('filter_tips', $tips, FALSE, $extra),
 	    );
 	    $form[] = array('#value' => $extra);
-		}
+		} else {
+      // this is to get around an issue with Wysiwyg API looking for guidelines
+      // should not be needed in D7
+      // @see http://drupal.org/node/344169
+      $form['format']['guidelines'] = array(
+        '#title' => t('Formatting guidelines'),
+        '#value' => '',
+      );
+    }
   }
 
   return $form;
