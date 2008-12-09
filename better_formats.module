@@ -257,7 +257,7 @@ function better_formats_textarea_process($element, $edit, $form_state, $form) {
     // set default format for cck textarea
     $element['#value'][$filter_key] = $format;
     // set filter selection form
-    $element[$filter_key] = better_formats_filter_form($format, 1, $parents);
+    $element[$filter_key] = better_formats_filter_form($format, $form['type']['#value'], 1, $parents);
   }
 	
 	return $element;
@@ -274,22 +274,23 @@ function better_formats_set_node_format(&$form) {
       $format = better_formats_get_current_format($form['body_field']['format']);
     }
     // overwrite the filter form with our own
-  	$form['body_field']['format'] = better_formats_filter_form($format);
+  	$form['body_field']['format'] = better_formats_filter_form($format, $form['type']['#value']);
   }
 }
 
 function better_formats_set_comment_format(&$form) {
   if (isset($form['comment_filter']['format'])) {
+    $node = node_load($form['nid']['#value']);
+    
     // only get default for new entries
     if (empty($form['cid']['#value'])) {
-      $node = node_load($form['nid']['#value']);
 	    $format = better_formats_get_default_format('comment', $node->type);
     } else {
       // get existing format for comment
       $format = better_formats_get_current_format($form['comment_filter']['format']);
     }
     // overwrite the filter form with our own
-  	$form['comment_filter']['format'] = better_formats_filter_form($format);
+  	$form['comment_filter']['format'] = better_formats_filter_form($format, $node->type);
   }
 }
 
@@ -312,10 +313,6 @@ function better_formats_get_current_format($form) {
 
 function better_formats_get_default_format($mode, $node_type = '') {
   static $format;
-  
-  // putting node type into the global space to be used by the per node type 
-  // allowed formats feature in better_formats_filter_form()
-  $GLOBALS['better_formats_node_type'] = $node_type;
   
   // default our type to the mode (node or comment)
   $type = $mode;
@@ -360,25 +357,22 @@ function better_formats_get_default_format($mode, $node_type = '') {
  * @param 
  * @return array FAPI array for the format of a textarea
  */
-function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $weight = 1, $parents = array('format')) {
-  global $better_formats_node_type;
-  
-  $node_type = $better_formats_node_type;
-  
+function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $node_type = '', $weight = 1, $parents = array('format')) {
   $value     = filter_resolve_format($value);
   $formats   = filter_formats();
   
   // check if there are node type restrictions on allowed formats
   // if there are no retrictions set we use the site globals as default
+  $per_node_type   = variable_get('better_formats_per_node_type', FALSE);
   $allowed_formats = variable_get('better_formats_allowed_' . $node_type, false);
-  if ($allowed_formats) {
+  if ($per_node_type && $allowed_formats) {
     foreach ($formats as $key => $format) {
       if ( ! in_array($format->format, $allowed_formats)) {
         unset($formats[$key]);
       }
     }
   }
-    
+
   // extra check to ensure default format is available to the user
   // else we fall back to the site default format
   $default = isset($formats[$value]) ? $formats[$value]->format : filter_resolve_format(FILTER_FORMAT_DEFAULT);
