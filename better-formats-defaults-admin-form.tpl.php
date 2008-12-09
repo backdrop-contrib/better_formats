@@ -20,6 +20,7 @@
   drupal_add_tabledrag('node-format-defaults', 'order', 'sibling', 'better-formats-role-node-weight');
   drupal_add_tabledrag('comment-format-defaults', 'order', 'sibling', 'better-formats-role-comment-weight');
 ?>
+<div class="description"><?php print t('Only formats that a role has permission to use are shown.'); ?></div>
 <fieldset>
   <legend><strong>Node Defaults</strong></legend>
   <table id="node-format-defaults">
