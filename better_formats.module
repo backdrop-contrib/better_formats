@@ -111,6 +111,9 @@ function better_formats_form_alter(&$form, $form_state, $form_id) {
 
 
 function better_formats_content_type_admin_form(&$form, $form_state) {
+  // add js to enhance form and fix a bug
+  drupal_add_js(drupal_get_path('module', 'better_formats') . '/better_formats_node_type_form.js');
+  
   $node_type = $form['#node_type']->type;
   
   // build array of all formats for allowed checkboxes
@@ -128,7 +131,10 @@ function better_formats_content_type_admin_form(&$form, $form_state) {
     '#title' => t('Input format settings'),
     '#access' => user_access('administer filters'),
     '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
+    // setting collapsed to false because the wieght will not be hidden otherwise
+    // the fieldset will be collapsed via JS if enabled
+    '#collapsed' => FALSE,
+    '#attributes' => array('class' => 'input-format-settings'),
   );
   $allowed_key = $key . '_allowed';
   $form[$key][$allowed_key] = array(
@@ -137,6 +143,7 @@ function better_formats_content_type_admin_form(&$form, $form_state) {
     '#default_value' => variable_get($allowed_key . '_' . $node_type, array()),
     '#options' => $format_boxes,
     '#description' => t('Limit the formats users have to choose from even if they have permission to use that format. This will NOT allow a user to use a format they do not have access rights to use. It will only hide additional formats they do have access rights to. If no boxes are checked, all formats that the user has permission to use will be allowed.'),
+    '#attributes' => array('class' => 'bf-allowed-formats'),
   );
   
   $dform = array(
@@ -190,9 +197,9 @@ function better_formats_new_role($form, &$form_state) {
   
   // create stubs in per role table
   $sql[] = "INSERT INTO {better_formats_defaults} 
-            VALUES (%d, '%s', %d, %d)";
-  db_query($sql, 'node', $rid, 0, 25);
-  db_query($sql, 'comment', $rid, 0, 25);
+            VALUES (%d, '%s', %d, %d, %d)";
+  db_query($sql, 'node', $rid, 0, 1, 25);
+  db_query($sql, 'comment', $rid, 0, 1, 25);
 }
 
 /**
@@ -487,10 +494,10 @@ function better_formats_get_role_default_fields($mode, $node_type = '') {
     $types = $type . "','" . $mode;
   }
   
-  // get data from db for comments
+  // get data from db
   $sql = "SELECT bf.*, role.name 
           FROM {better_formats_defaults} AS bf 
-          INNER JOIN {role}  
+          INNER JOIN {role} AS role
           ON bf.rid = role.rid 
           WHERE bf.type IN ('$types') 
           ORDER BY bf.type_weight DESC, bf.weight, role.rid";
@@ -510,15 +517,15 @@ function better_formats_get_role_default_fields($mode, $node_type = '') {
       '#value' => $role->name,
     );
     $form[$key]['format'] = array(
-      '#id' => 'format',
       '#type' => 'select',
       '#title' => t('Format'),
       '#options' => $format_options[$role->rid],
       '#default_value' => $role->format,
+      '#attributes' => array('class' => 'bf-default-formats'),
     );
     $form[$key]['weight'] = array(
-      '#type'          => 'weight',
-      '#delta'         => 25,
+      '#type' => 'weight',
+      '#delta' => 25,
       '#default_value' => $role->weight,
     );
   }
