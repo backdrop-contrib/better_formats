@@ -294,8 +294,10 @@ function better_formats_set_comment_format(&$form) {
 }
 
 function better_formats_get_current_format($form) {
+  // default format to site default in case of error
+  $format = FILTER_FORMAT_DEFAULT;
   foreach (element_children($form) as $key) {
-    $element = $format = $form['body_field']['format'][$key];
+    $element = $form[$key];
     if ($element['#type'] === 'radio' && isset($element['#default_value'])) {
       $format = $element['#default_value'];
       break;
