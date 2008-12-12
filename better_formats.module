@@ -2,15 +2,24 @@
 // $Id$
 
 /**
+ * @file
+ * Enhances Drupal's core input format settings.
+ *
+ * Allows setting of defaults per role and content type, controls format display 
+ * options, works with CCK fields.
+ */
+
+/**
  * Implementation of hook_help()
  */
 function better_formats_help($path, $arg) {
-  $output = '';
   switch ($path) {
     case 'admin/help/better_formats':
-    case 'admin/settings/better-formats':
-      $output = '<p>' . t('This module allows you to set default input formats.') . '</p>';
-      break;  
+      $output = '<p>' . t('See the module README.txt file in the better_formats module directory for help.') . '</p>';
+      break;
+
+    default: 
+      $output = '';
   }
   return $output;
 }
@@ -227,11 +236,11 @@ function better_formats_delete_role($form, &$form_state) {
  * Adds a process function to CCK's textarea FAPI element
  */
 function better_formats_elements() {
-	return array(
+  return array(
     'text_textarea' => array(
       '#process' => array('better_formats_textarea_process'),
     ),
-	);
+  );
 }
 
 /**
@@ -247,9 +256,9 @@ function better_formats_elements() {
  * Most of this was taken from text_textarea_process()
  */
 function better_formats_textarea_process($element, $edit, $form_state, $form) {
-	$field = $form['#field_info'][$element['#field_name']];
-	
-	if ( ! empty($field['text_processing'])) {
+  $field = $form['#field_info'][$element['#field_name']];
+  
+  if ( ! empty($field['text_processing'])) {
     // get core default for new or selected format for existing
     $filter_key = (count($element['#columns']) == 2) ? $element['#columns'][1] : 'format';
     $format     = isset($element['#value'][$filter_key]) ? $element['#value'][$filter_key] : FILTER_FORMAT_DEFAULT;
@@ -265,8 +274,8 @@ function better_formats_textarea_process($element, $edit, $form_state, $form) {
     // set filter selection form
     $element[$filter_key] = better_formats_filter_form($format, $form['type']['#value'], 1, $parents);
   }
-	
-	return $element;
+  
+  return $element;
 }
 
 function better_formats_set_node_format(&$form) {
@@ -275,12 +284,13 @@ function better_formats_set_node_format(&$form) {
     // only get default for new entries
     if (empty($form['nid']['#value'])) {
       $format = better_formats_get_default_format('node', $form['type']['#value']);
-    } else {
+    } 
+    else {
       // get existing format for core body field
       $format = better_formats_get_current_format($form['body_field']['format']);
     }
     // overwrite the filter form with our own
-  	$form['body_field']['format'] = better_formats_filter_form($format, $form['type']['#value']);
+    $form['body_field']['format'] = better_formats_filter_form($format, $form['type']['#value']);
   }
 }
 
@@ -290,13 +300,14 @@ function better_formats_set_comment_format(&$form) {
     
     // only get default for new entries
     if (empty($form['cid']['#value'])) {
-	    $format = better_formats_get_default_format('comment', $node->type);
-    } else {
+      $format = better_formats_get_default_format('comment', $node->type);
+    } 
+    else {
       // get existing format for comment
       $format = better_formats_get_current_format($form['comment_filter']['format']);
     }
     // overwrite the filter form with our own
-  	$form['comment_filter']['format'] = better_formats_filter_form($format, $node->type);
+    $form['comment_filter']['format'] = better_formats_filter_form($format, $node->type);
   }
 }
 
@@ -324,7 +335,7 @@ function better_formats_get_default_format($mode, $node_type = '') {
   $type = $mode;
   
   // check if per node type is enabled and set type accordingly
-  $per_node_type = variable_get('better_formats_per_node_type', false);
+  $per_node_type = variable_get('better_formats_per_node_type', FALSE);
   if ($per_node_type && $node_type) {
     $type = $mode . '/' . $node_type;
   }
@@ -370,7 +381,7 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $node_type =
   // check if there are node type restrictions on allowed formats
   // if there are no retrictions set we use the site globals as default
   $per_node_type   = variable_get('better_formats_per_node_type', FALSE);
-  $allowed_formats = variable_get('better_formats_allowed_' . $node_type, false);
+  $allowed_formats = variable_get('better_formats_allowed_' . $node_type, FALSE);
   if ($per_node_type && $allowed_formats) {
     foreach ($formats as $key => $format) {
       if ( ! in_array($format->format, $allowed_formats)) {
@@ -414,28 +425,30 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $node_type =
         '#id' => form_clean_id('edit-'. implode('-', $parents_for_id)),
       );
       if ($show_tips) {
-      	$extra = theme('filter_tips_more_info');
+        $extra = theme('filter_tips_more_info');
         $form[$format->format]['#description'] = theme('filter_tips', _filter_tips($format->format, FALSE));
-	      $form[] = array('#value' => $extra);
+        $form[] = array('#value' => $extra);
       }
     }
-  } else {
+  } 
+  else {
     // Only one format available or hiding the form: use a hidden form item.
     $format = $formats[$default];
     $form[$format->format] = array(
-    	'#type' => 'value', 
-    	'#value' => $format->format, 
-    	'#parents' => $parents
+      '#type' => 'value', 
+      '#value' => $format->format, 
+      '#parents' => $parents
     );
     if ($show_tips) {
       $extra = theme('filter_tips_more_info');
-	    $tips  = _filter_tips($format->format, FALSE);
-	    $form['format']['guidelines'] = array(
-	      '#title' => t('Formatting guidelines'),
-	      '#value' => theme('filter_tips', $tips, FALSE, $extra),
-	    );
-	    $form[] = array('#value' => $extra);
-		} else {
+      $tips  = _filter_tips($format->format, FALSE);
+      $form['format']['guidelines'] = array(
+        '#title' => t('Formatting guidelines'),
+        '#value' => theme('filter_tips', $tips, FALSE, $extra),
+      );
+      $form[] = array('#value' => $extra);
+    } 
+    else {
       // this is to get around an issue with Wysiwyg API looking for guidelines
       // should not be needed in D7
       // @see http://drupal.org/node/344169
@@ -489,7 +502,7 @@ function better_formats_get_role_default_fields($mode, $node_type = '') {
   $form = array();
   $format_options = better_formats_get_formats_per_role();
   $type = $types = $mode;
-  $per_node_type = variable_get('better_formats_per_node_type', false);
+  $per_node_type = variable_get('better_formats_per_node_type', FALSE);
   
   if ($per_node_type && $node_type) {
     $type = $mode . '/' . $node_type;

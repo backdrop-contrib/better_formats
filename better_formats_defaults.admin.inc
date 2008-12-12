@@ -1,5 +1,12 @@
 <?php
+// $Id$
 
+/**
+ * @file
+ * Contains FAPI and theme functions for the format defaults form.
+ */
+ 
+ 
 /**
  * Builds the form for the filters admin
  * @return array fapi array

@@ -2,6 +2,15 @@
 // $Id$
 
 /**
+ * @file
+ * Installs the better_formats module.
+ *
+ * Creates a database for use of multi-layered default formats and sets 
+ * default settings.
+ */
+
+
+/**
  * Implementation of hook_schema()
  */
 function better_formats_schema() {
@@ -79,7 +88,7 @@ function better_formats_install() {
 /**
  * Implementation of hook_uninstall()
  */
-function better_formats_uninstall(){
+function better_formats_uninstall() {
   drupal_uninstall_schema('better_formats');
   // delete settings variables from varible table
   $sql = "DELETE FROM {variable} WHERE name LIKE 'better_formats%'";
