@@ -429,6 +429,12 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $node_type =
         $form[$format->format]['#description'] = theme('filter_tips', _filter_tips($format->format, FALSE));
         $form[] = array('#value' => $extra);
       }
+      else {
+        // this is to get around an issue with Wysiwyg API popping the last element
+        // should not be needed in D7
+        // @see http://drupal.org/node/344169
+        $form[] = array('#value' => '');
+      }
     }
   } 
   else {
