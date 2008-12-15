@@ -1,5 +1,16 @@
 <?php
-  
+// $Id$
+
+/**
+ * @file
+ * Contains FAPI and theme functions for the format settings form.
+ */
+
+/**
+ * FAPI form builder for admin/settings/filters/settings page.
+ * 
+ * @see better_formats_menu()
+ */
 function better_formats_settings_admin_form() {
   $form = array();
   

@@ -11,7 +11,7 @@
 
 
 /**
- * Implementation of hook_schema()
+ * Implementation of hook_schema().
  */
 function better_formats_schema() {
   $schema['better_formats_defaults'] = array(
@@ -55,7 +55,7 @@ function better_formats_schema() {
 }
 
 /**
- * Implementation of hook_install()
+ * Implementation of hook_install().
  */
 function better_formats_install() {
   // create tables
@@ -86,7 +86,7 @@ function better_formats_install() {
 }
 
 /**
- * Implementation of hook_uninstall()
+ * Implementation of hook_uninstall().
  */
 function better_formats_uninstall() {
   drupal_uninstall_schema('better_formats');

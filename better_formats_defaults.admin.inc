@@ -8,8 +8,13 @@
  
  
 /**
- * Builds the form for the filters admin
- * @return array fapi array
+ * Builds the form for the filters admin.
+ * 
+ * @return array 
+ *  FAPI array
+ * 
+ * @see better_formats_defaults_admin_form_validate()
+ * @see better_formats_defaults_admin_form_submit()
  */
 function better_formats_defaults_admin_form() {
   $form = array(
@@ -29,9 +34,10 @@ function better_formats_defaults_admin_form() {
 }
 
 /**
- * Validates better_formats_admin_filter_form
- * @param array $form
- * @param array $form_state
+ * Validates better_formats_admin_filter_form.
+ * 
+ * @see better_formats_defaults_admin_form()
+ * @see better_formats_defaults_admin_form_submit()
  */
 function better_formats_defaults_admin_form_validate($form, &$form_state) {
   $formats = filter_formats();
@@ -51,9 +57,10 @@ function better_formats_defaults_admin_form_validate($form, &$form_state) {
 }
 
 /**
- * Updates database from better_formats_admin_filter_form
- * @param array $form
- * @param array $form_state
+ * Updates database from better_formats_admin_filter_form.
+ * 
+ * @see better_formats_defaults_admin_form()
+ * @see better_formats_defaults_admin_form_validate()
  */
 function better_formats_defaults_admin_form_submit($form, &$form_state) {
   // update DB
@@ -72,12 +79,11 @@ function better_formats_defaults_admin_form_submit($form, &$form_state) {
 }
 
 /**
- * Process variables for better-formats-filter-admin-form.tpl.php.
+ * Process variables for better-defaults-admin-form.tpl.php.
  *
- * The $variables array contains the following arguments:
- * - $form
- * 
  * @param array $variables
+ *  The $variables array contains the following arguments:
+ *    - $form
  */
 function template_preprocess_better_formats_defaults_admin_form(&$variables) {
   foreach (element_children($variables['form']) as $key) {

@@ -16,10 +16,14 @@ Features
 -------------------------------------------------------------------
 
 Installation:
+
 1. Copy the module folder to your server.
 2. Enable the module via the modules page.
 
-Use:
+-------------------------------------------------------------------
+
+Simple 4-step usage:
+
 1. Go to user permissions (/admin/user/permissions) and set your permissions.
 2. Navigate to Site Configuration > Input formats (/admin/settings/filters)
 3. There you will find 2 tabs where you can change your settings. 
@@ -29,9 +33,24 @@ Use:
    type admin page to set those settings (example /admin/content/node-type/page).
    The settings are under the Input format settings fieldset.
    
+-------------------------------------------------------------------
 
-The module is designed to always fall back to default settings when needed. 
-This means that when you enable the module before you change any settings, 
-it will use your current Drupal settings. Also when you enable conrol per node 
-type it will use your global settings until you save the content type with new 
-settings.
+Extended usage and notes:
+
+* The default format will only be set on NEW nodes and comments. The format 
+  selected when the form is submitted is used for future editing purposes.
+
+* The module is designed to always fall back to default settings when needed. 
+  This means that when you enable the module before you change any settings, 
+  it will use your current Drupal settings. Also when you enable conrol per node 
+  type it will use your global settings until you save the content type with new 
+  settings.
+
+* The permissions "collapse format fieldset by default" and 
+  "collapsible format selection" will only work if "Show format selection" is 
+  also given. This is because those 2 perms only have an effect when there is 
+  a format selection.
+
+* The permission "collapse format fieldset by default" will only work if 
+  "collapsible format selection" is also given. This is because the 
+  fieldset can only be collapsed by default if it is collapsible.

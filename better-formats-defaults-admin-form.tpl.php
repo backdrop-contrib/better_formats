@@ -1,7 +1,7 @@
 <?php
 // $Id$
 /**
- * @file better-formats-filter-admin-form.tpl.php
+ * @file
  * Default theme implementation to configure format manager filter admin page
  *
  * Available variables:
