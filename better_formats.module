@@ -265,7 +265,12 @@ function better_formats_elements() {
  * @see text_textarea_process()
  */
 function better_formats_textarea_process($element, $edit, $form_state, $form) {
+  $debug = variable_get('better_formats_debug', FALSE);
   $field = $form['#field_info'][$element['#field_name']];
+  
+  if ($debug) {
+    drupal_set_message('CCK textarea field: <br /><pre>' . print_r($field, TRUE) . '</pre>');
+  }
   
   if ( ! empty($field['text_processing'])) {
     // get core default for new or selected format for existing
@@ -419,13 +424,27 @@ function better_formats_get_default_format($mode, $node_type = '') {
  * @see filter_form() 
  */
 function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $node_type = '', $weight = 1, $parents = array('format')) {
-  $value     = filter_resolve_format($value);
-  $formats   = filter_formats();
+  static $debug1;
+  $debug           = variable_get('better_formats_debug', FALSE);
+  $value           = filter_resolve_format($value);
+  $formats         = filter_formats();
+  $show_selection  = user_access('show format selection');
+  $show_tips       = user_access('show format tips');
+  $per_node_type   = variable_get('better_formats_per_node_type', FALSE);
+  $allowed_formats = variable_get('better_formats_allowed_' . $node_type, FALSE);
+  
+  if ($debug && ! $debug1) {
+    drupal_set_message('Default format value: ' . $value);
+    drupal_set_message('Node type: ' . $node_type);
+    drupal_set_message('Show format selection: ' . $show_selection);
+    drupal_set_message('Show format tips: ' . $show_tips);
+    drupal_set_message('Control per node type: ' . $per_node_type);
+    drupal_set_message('Node type allowed formats: <br /><pre>' . print_r($allowed_formats, TRUE) . '</pre>');
+    drupal_set_message('Core allowed formats: <br /><pre>' . print_r($formats, TRUE) . '</pre>');
+  }
   
   // check if there are node type restrictions on allowed formats
   // if there are no retrictions set we use the site globals as default
-  $per_node_type   = variable_get('better_formats_per_node_type', FALSE);
-  $allowed_formats = variable_get('better_formats_allowed_' . $node_type, FALSE);
   if ($per_node_type && $allowed_formats) {
     foreach ($formats as $key => $format) {
       if ( ! in_array($format->format, $allowed_formats)) {
@@ -433,18 +452,24 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $node_type =
       }
     }
   }
+  
+  if ($debug && ! $debug1) {
+    drupal_set_message('BF allowed formats: <br /><pre>' . print_r($formats, TRUE) . '</pre>');
+  }
 
   // extra check to ensure default format is available to the user
   // else we fall back to the site default format
   $default = isset($formats[$value]) ? $formats[$value]->format : filter_resolve_format(FILTER_FORMAT_DEFAULT);
   
-  $show_selection = user_access('show format selection');
-  $show_tips      = user_access('show format tips');
-
   if (count($formats) > 1 && $show_selection) {
     $collapsed      = user_access('collapse format fieldset by default');
     $collapsible    = user_access('collapsible format selection');
     $fieldset_title = variable_get('better_formats_fieldset_title', 'Input format');
+    
+    if ($debug && ! $debug1) {
+      drupal_set_message('Collapsible format selection: ' . $collapsible);
+      drupal_set_message('Collape format selection by default: ' . $collapsed);
+    }
     
     $form = array(
       '#type' => 'fieldset',
@@ -508,7 +533,10 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $node_type =
       );
     }
   }
-
+  
+  // set debug1 to true so that some debug info is only printed once
+  $debug1 = TRUE;
+  
   return $form;
 }
 

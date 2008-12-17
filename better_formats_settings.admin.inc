@@ -34,9 +34,23 @@ function better_formats_settings_admin_form() {
   );
   $form[$key]['better_formats_per_node_type'] = array(
     '#type'  => 'checkbox',
-    '#title' => t('Control formats per node type.'),
+    '#title' => t('Control formats per node type'),
     '#description' => t('Control formats allowed and default formats per node type. Global settings will be used until a content type admin page is saved with different values.'),
     '#default_value' => variable_get('better_formats_per_node_type', 0),
+  );
+  
+  $key = 'better_formats_settings_advanced';
+  $form[$key] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Advanced'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form[$key]['better_formats_debug'] = array(
+    '#type'  => 'checkbox',
+    '#title' => t('Debug mode'),
+    '#description' => t('Turn on debug mode. This will output information to the message area that should be filed with issue reports when asked. Do not leave this turned on.'),
+    '#default_value' => variable_get('better_formats_debug', 0),
   );
   
   return system_settings_form($form);
