@@ -502,6 +502,7 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $node_type =
         // this is to get around an issue with Wysiwyg API popping the last element
         // should not be needed in D7
         // see http://drupal.org/node/344169
+        $form[$format->format]['#description'] = '';
         $form[] = array('#value' => '');
       }
     }
@@ -531,6 +532,7 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $node_type =
         '#title' => t('Formatting guidelines'),
         '#value' => '',
       );
+      $form[] = array('#value' => '');
     }
   }
   
