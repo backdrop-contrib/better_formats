@@ -225,10 +225,10 @@ function better_formats_new_role($form, &$form_state) {
   $rid = db_fetch_object(db_query_range($sql, 0, 1))->rid;
   
   // create stubs in per role table
-  $sql[] = "INSERT INTO {better_formats_defaults} 
+  $sql = "INSERT INTO {better_formats_defaults} 
             VALUES (%d, '%s', %d, %d, %d)";
-  db_query($sql, 'node', $rid, 0, 1, 25);
-  db_query($sql, 'comment', $rid, 0, 1, 25);
+  db_query($sql, $rid, 'node', 0, 1, 25);
+  db_query($sql, $rid, 'comment', 0, 1, 25);
 }
 
 /**
