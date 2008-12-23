@@ -494,17 +494,25 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $node_type =
         '#id' => form_clean_id('edit-'. implode('-', $parents_for_id)),
       );
       if ($show_tips) {
-        $extra = theme('filter_tips_more_info');
         $form[$format->format]['#description'] = theme('filter_tips', _filter_tips($format->format, FALSE));
-        $form[] = array('#value' => $extra);
       }
       else {
         // this is to get around an issue with Wysiwyg API popping the last element
         // should not be needed in D7
         // see http://drupal.org/node/344169
         $form[$format->format]['#description'] = '';
-        $form[] = array('#value' => '');
       }
+    }
+    
+    if ($show_tips) {
+      $extra = theme('filter_tips_more_info');
+      $form[] = array('#value' => $extra);
+    }
+    else {
+      // this is to get around an issue with Wysiwyg API popping the last element
+      // should not be needed in D7
+      // see http://drupal.org/node/344169
+      $form[] = array('#value' => '');
     }
   } 
   else {
@@ -522,7 +530,10 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $node_type =
         '#title' => t('Formatting guidelines'),
         '#value' => theme('filter_tips', $tips, FALSE, $extra),
       );
-      $form[] = array('#value' => $extra);
+      // only show long tips link if there are guidelines to the format
+      if ($form['format']['guidelines']['#value'] != '') {
+        $form[] = array('#value' => $extra);
+      }
     } 
     else {
       // this is to get around an issue with Wysiwyg API looking for guidelines
