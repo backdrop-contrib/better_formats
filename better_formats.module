@@ -285,16 +285,17 @@ function better_formats_textarea_process($element, $edit, $form_state, $form) {
     $filter_key = (count($element['#columns']) == 2) ? $element['#columns'][1] : 'format';
     $format     = isset($element['#value'][$filter_key]) ? $element['#value'][$filter_key] : FILTER_FORMAT_DEFAULT;
     $parents    = array_merge($element['#parents'] , array($filter_key));
+    $default    = better_formats_get_default_format('node', $form['type']['#value']);
     
     // overwrite format default if new node
     if ( ! isset($form_state['values']['nid'])) {
-      $format = better_formats_get_default_format('node', $form['type']['#value']);
+      $format = $default;
     }
     
     // set default format for cck textarea
     $element['#value'][$filter_key] = $format;
     // set filter selection form
-    $element[$filter_key] = better_formats_filter_form($format, $form['type']['#value'], 1, $parents);
+    $element[$filter_key] = better_formats_filter_form($format, $default, $form['type']['#value'], 1, $parents);
   }
   
   return $element;
@@ -308,16 +309,20 @@ function better_formats_textarea_process($element, $edit, $form_state, $form) {
 function better_formats_set_node_format(&$form) {
   // set core body field
   if (isset($form['body_field'])) {
-    // only get default for new entries
+    // get default for new entries
+    $default = better_formats_get_default_format('node', $form['type']['#value']);
+    
     if (empty($form['nid']['#value'])) {
-      $format = better_formats_get_default_format('node', $form['type']['#value']);
+      // set format to default for new entries
+      $format = $default;
     } 
     else {
       // get existing format for core body field
       $format = better_formats_get_current_format($form['body_field']['format']);
     }
+    
     // overwrite the filter form with our own
-    $form['body_field']['format'] = better_formats_filter_form($format, $form['type']['#value']);
+    $form['body_field']['format'] = better_formats_filter_form($format, $default, $form['type']['#value']);
   }
 }
 
@@ -329,17 +334,20 @@ function better_formats_set_node_format(&$form) {
 function better_formats_set_comment_format(&$form) {
   if (isset($form['comment_filter']['format'])) {
     $node = node_load($form['nid']['#value']);
+        
+    // get bf default format
+    $default = better_formats_get_default_format('comment', $node->type);
     
-    // only get default for new entries
     if (empty($form['cid']['#value'])) {
-      $format = better_formats_get_default_format('comment', $node->type);
+      // set format to default for new entries
+      $format = $default;
     } 
     else {
       // get existing format for comment
       $format = better_formats_get_current_format($form['comment_filter']['format']);
     }
     // overwrite the filter form with our own
-    $form['comment_filter']['format'] = better_formats_filter_form($format, $node->type);
+    $form['comment_filter']['format'] = better_formats_filter_form($format, $default, $node->type);
   }
 }
 
@@ -431,7 +439,7 @@ function better_formats_get_default_format($mode, $node_type = '') {
  * 
  * @see filter_form() 
  */
-function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $node_type = '', $weight = 1, $parents = array('format')) {
+function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $default_format, $node_type = '', $weight = 1, $parents = array('format')) {
   static $debug1;
   $debug           = variable_get('better_formats_debug', FALSE);
   $value           = filter_resolve_format($value);
@@ -468,6 +476,19 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $node_type =
   // extra check to ensure default format is available to the user
   // else we fall back to the site default format
   $default = isset($formats[$value]) ? $formats[$value]->format : filter_resolve_format(FILTER_FORMAT_DEFAULT);
+  
+  if (isset($formats[$value])) {
+    // use existing or bf default value if available
+    $default = $value;
+  }
+  else if (isset($formats[$default_format])) {
+    // use currently set bf default as a fallback
+    $default = $default_format;
+  }
+  else {
+    // use core site default as a fallback if the previous two are not available
+    $default = filter_resolve_format(FILTER_FORMAT_DEFAULT);
+  }
   
   if (count($formats) > 1 && $show_selection) {
     $collapsed      = user_access('collapse format fieldset by default');

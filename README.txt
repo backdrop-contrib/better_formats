@@ -54,3 +54,11 @@ Extended usage and notes:
 * The permission "collapse format fieldset by default" will only work if 
   "collapsible format selection" is also given. This is because the 
   fieldset can only be collapsed by default if it is collapsible.
+
+* If you dis-allow a format that is already being used by content, the module 
+  will do its best to set the correct format. The precidence of the formats are:
+  1. Existing format selected when last saved
+  2. Content type default format
+  3. Global default format
+  4. Drupal core site default format
+  
