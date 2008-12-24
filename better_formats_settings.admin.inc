@@ -25,6 +25,12 @@ function better_formats_settings_admin_form() {
     '#title' => t('Selection title'),
     '#description' => t('Change the format selection title. Defaults to "Input format"'),
   );
+  $form[$key]['better_formats_long_tips_link_text'] = array(
+    '#type'  => 'textfield',
+    '#default_value' => variable_get('better_formats_long_tips_link_text', ''),
+    '#title' => t('More info link text'),
+    '#description' => t('Change the format full tips link text. Defaults to "More information about formatting options"'),
+  );
   
   
   $key = 'better_formats_settings_control';

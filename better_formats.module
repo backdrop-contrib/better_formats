@@ -76,6 +76,9 @@ function better_formats_theme() {
       'file' => 'better_formats_defaults.admin.inc',
       'arguments' => array('form' => NULL),
     ),
+    'better_formats_filter_tips_more_info' => array(
+      'arguments' => array(),
+    ),
   );
 }
 
@@ -505,7 +508,7 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $node_type =
     }
     
     if ($show_tips) {
-      $extra = theme('filter_tips_more_info');
+      $extra = theme('better_formats_filter_tips_more_info');
       $form[] = array('#value' => $extra);
     }
     else {
@@ -524,7 +527,7 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $node_type =
       '#parents' => $parents
     );
     if ($show_tips) {
-      $extra = theme('filter_tips_more_info');
+      $extra = theme('better_formats_filter_tips_more_info');
       $tips  = _filter_tips($format->format, FALSE);
       $form['format']['guidelines'] = array(
         '#title' => t('Formatting guidelines'),
@@ -552,6 +555,14 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $node_type =
   
   return $form;
 }
+
+
+function theme_better_formats_filter_tips_more_info() {
+  $text = variable_get('better_formats_long_tips_link_text', '');
+  $text = $text ? $text : t('More information about formatting options');
+  return '<p>' . l($text, 'filter/tips') . '</p>';
+}
+
 
 /**
  * Retrieves the formats available to users by role.
