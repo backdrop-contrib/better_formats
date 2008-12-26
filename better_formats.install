@@ -77,7 +77,7 @@ function better_formats_install() {
   }
   
   // default perms to be like core defaults
-  $default_perms = ',show format selection,show format tips,collapsible format selection,collapse format fieldset by default';
+  $default_perms = ',show format selection,show format tips,show more format tips link,collapsible format selection,collapse format fieldset by default';
   // get current core perms
   $sql = "SELECT * 
           FROM {permission} 

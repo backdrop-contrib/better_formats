@@ -28,7 +28,7 @@ function better_formats_settings_admin_form() {
   $form[$key]['better_formats_long_tips_link_text'] = array(
     '#type'  => 'textfield',
     '#default_value' => variable_get('better_formats_long_tips_link_text', ''),
-    '#title' => t('More info link text'),
+    '#title' => t('More format tips link text'),
     '#description' => t('Change the format full tips link text. Defaults to "More information about formatting options"'),
   );
   

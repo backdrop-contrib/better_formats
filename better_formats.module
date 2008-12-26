@@ -36,6 +36,7 @@ function better_formats_perm() {
   return array(
     'show format selection',
     'show format tips',
+    'show more format tips link',
     'collapse format fieldset by default',
     'collapsible format selection',
   );
@@ -446,6 +447,7 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $default_for
   $formats         = filter_formats();
   $show_selection  = user_access('show format selection');
   $show_tips       = user_access('show format tips');
+  $show_tips_link  = user_access('show more format tips link');
   $per_node_type   = variable_get('better_formats_per_node_type', FALSE);
   $allowed_formats = variable_get('better_formats_allowed_' . $node_type, FALSE);
   
@@ -454,6 +456,7 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $default_for
     drupal_set_message('Node type: ' . $node_type);
     drupal_set_message('Show format selection: ' . $show_selection);
     drupal_set_message('Show format tips: ' . $show_tips);
+    drupal_set_message('Show more format tips link: ' . $show_tips_link);
     drupal_set_message('Control per node type: ' . $per_node_type);
     drupal_set_message('Node type allowed formats: <br /><pre>' . print_r($allowed_formats, TRUE) . '</pre>');
     drupal_set_message('Core allowed formats: <br /><pre>' . print_r($formats, TRUE) . '</pre>');
@@ -533,7 +536,7 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $default_for
       }
     }
     
-    if ($show_tips) {
+    if ($show_tips_link) {
       $extra = theme('better_formats_filter_tips_more_info');
       $form[] = array('#value' => $extra);
     }
@@ -552,17 +555,13 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $default_for
       '#value' => $format->format, 
       '#parents' => $parents
     );
+    
     if ($show_tips) {
-      $extra = theme('better_formats_filter_tips_more_info');
-      $tips  = _filter_tips($format->format, FALSE);
+      $tips = _filter_tips($format->format, FALSE);
       $form['format']['guidelines'] = array(
         '#title' => t('Formatting guidelines'),
-        '#value' => theme('filter_tips', $tips, FALSE, $extra),
+        '#value' => theme('filter_tips', $tips, FALSE),
       );
-      // only show long tips link if there are guidelines to the format
-      if ($form['format']['guidelines']['#value'] != '') {
-        $form[] = array('#value' => $extra);
-      }
     } 
     else {
       // this is to get around an issue with Wysiwyg API looking for guidelines
@@ -572,6 +571,14 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $default_for
         '#title' => t('Formatting guidelines'),
         '#value' => '',
       );
+    }
+    
+    // only show long tips link if there are guidelines to the format
+    if ($show_tips_link) {
+      $extra = theme('better_formats_filter_tips_more_info');
+      $form[] = array('#value' => $extra);
+    } else {
+      // see http://drupal.org/node/344169
       $form[] = array('#value' => '');
     }
   }
