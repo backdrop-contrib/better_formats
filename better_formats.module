@@ -110,7 +110,7 @@ function better_formats_form_alter(&$form, $form_state, $form_id) {
   switch ($form_id) {
     case 'node_type_form':
       if (variable_get('better_formats_per_node_type', FALSE)) {
-        better_formats_content_type_admin_form($form, $form_state);
+        better_formats_node_type_form($form, $form_state);
       }
       break;
     
@@ -131,10 +131,10 @@ function better_formats_form_alter(&$form, $form_state, $form_id) {
 /**
  * FAPI form to add to the content type edit form.
  * 
- * @see better_formats_content_type_admin_form_validate()
- * @see better_formats_content_type_admin_form_submit()
+ * @see better_formats_node_type_form_validate()
+ * @see better_formats_node_type_form_submit()
  */
-function better_formats_content_type_admin_form(&$form, $form_state) {
+function better_formats_node_type_form(&$form, $form_state) {
   // add js to enhance form and fix a bug
   drupal_add_js(drupal_get_path('module', 'better_formats') . '/better_formats_node_type_form.js');
   
@@ -179,29 +179,29 @@ function better_formats_content_type_admin_form(&$form, $form_state) {
   // Attach our validate and submit handlers.
   // Prepending to the submit array because core will auto save the values in the 
   // variable table if the values are not removed before hand.
-  array_unshift($form['#validate'], 'better_formats_content_type_admin_form_validate');
-  array_unshift($form['#submit'], 'better_formats_content_type_admin_form_submit');
+  $form['#validate'][] = 'better_formats_node_type_form_validate';
+  $form['#submit'][] = 'better_formats_node_type_form_submit';
 }
 
 /**
  * Handles validatation of the addition to the content type edit form.
  * 
- * @see better_formats_content_type_admin_form()
- * @see better_formats_content_type_admin_form_submit()
+ * @see better_formats_node_type_form()
+ * @see better_formats_node_type_form_submit()
  */
-function better_formats_content_type_admin_form_validate($form, &$form_state) {
-  include(drupal_get_path('module', 'better_formats') . '/better_formats_defaults.admin.inc');
+function better_formats_node_type_form_validate($form, &$form_state) {
+  module_load_include('admin.inc', 'better_formats', 'better_formats_defaults');
   better_formats_defaults_admin_form_validate($form, $form_state);
 }
 
 /**
  * Handles submition of the addition to the content type edit form.
  * 
- * @see better_formats_content_type_admin_form()
- * @see better_formats_content_type_admin_form_validate()
+ * @see better_formats_node_type_form()
+ * @see better_formats_node_type_form_validate()
  */
-function better_formats_content_type_admin_form_submit($form, &$form_state) {
-  $node_type = $form['#node_type']->type;
+function better_formats_node_type_form_submit($form, &$form_state) {
+  $node_type = trim($form_state['values']['type']);
   
   // remove current db entries
   $sql = "DELETE FROM {better_formats_defaults}
@@ -218,7 +218,10 @@ function better_formats_content_type_admin_form_submit($form, &$form_state) {
     }
   }
 
-  unset($form_state['values']['better_formats_defaults']);
+  // node module automatically stores all settings in variable table
+  // BF uses default settings from its own table
+  // so delete the unneeded variable
+  variable_del('better_formats_defaults_' . $node_type);
 }
 
 /**
