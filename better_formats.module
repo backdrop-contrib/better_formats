@@ -505,9 +505,13 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $default_for
   else if (isset($formats[$default_format])) {
     // use currently set bf default as a fallback
     $default = $default_format;
+  } else if ( ! empty($formats)) {
+    // current and default format are not allowed so use first allowed format
+    reset($formats);
+    $default = key($formats);
   }
   else {
-    // use core site default as a fallback if the previous two are not available
+    // use core site default as a fallback if all else fails
     $default = filter_resolve_format(FILTER_FORMAT_DEFAULT);
   }
   
@@ -543,6 +547,7 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $default_for
         '#parents' => $parents,
         '#id' => form_clean_id('edit-'. implode('-', $parents_for_id)),
       );
+      
       if ($show_tips) {
         $form[$format->format]['#description'] = theme('filter_tips', _filter_tips($format->format, FALSE));
       }

@@ -60,5 +60,6 @@ Extended usage and notes:
   1. Existing format selected when last saved
   2. Content type default format
   3. Global default format
-  4. Drupal core site default format
+  4. First allowed format
+  5. Drupal core site default format
   
