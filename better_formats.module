@@ -235,7 +235,7 @@ function better_formats_new_role($form, &$form_state) {
   
   // create stubs in per role table
   $sql = "INSERT INTO {better_formats_defaults} 
-            VALUES (%d, '%s', %d, %d, %d)";
+          VALUES (%d, '%s', %d, %d, %d)";
   db_query($sql, $rid, 'node', 0, 1, 25);
   db_query($sql, $rid, 'comment', 0, 1, 25);
 }
@@ -250,6 +250,21 @@ function better_formats_delete_role($form, &$form_state) {
   $sql = "DELETE FROM {better_formats_defaults} 
           WHERE rid = %d";
   db_query($sql, $form['rid']['#value']);
+}
+
+/**
+ * Implementation of hook_node_type().
+ */
+function better_formats_node_type($op, $info) {
+  if ($op === 'delete') {
+    // delete per node type settings on node type delete
+    $sql = "DELETE FROM {better_formats_defaults} 
+            WHERE type IN ('node/%s', 'comment/%s')";
+    db_query($sql, $info->type, $info->type);
+    
+    // delete node type variables
+    variable_del('better_formats_allowed_' . $info->type);
+  }
 }
 
 /**
