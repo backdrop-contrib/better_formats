@@ -713,7 +713,6 @@ function better_formats_get_role_default_fields($mode, $node_type = '') {
     );
     $form[$key]['format'] = array(
       '#type' => 'select',
-      '#title' => t('Format'),
       '#options' => $format_options[$role->rid],
       '#default_value' => $role->format,
       '#attributes' => array('class' => 'bf-default-formats'),
