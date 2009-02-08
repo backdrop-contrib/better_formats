@@ -640,15 +640,7 @@ function better_formats_get_formats_per_role($default_title = 'Site') {
   $roles   = user_roles();
   
   // get roles that have administer filters permission
-  $sql = "SELECT rid 
-          FROM {permission} 
-          WHERE perm LIKE '%administer filters%' 
-          ORDER BY rid";
-  $result = db_query($sql);
-  $admin_roles = array();
-  while ($row = db_fetch_object($result)) {
-    $admin_roles[] = $row->rid;
-  }
+  $admin_roles = better_formats_get_filter_admin_roles();
   
   $site_default_format = filter_resolve_format(FILTER_FORMAT_DEFAULT);
   
@@ -725,4 +717,26 @@ function better_formats_get_role_default_fields($mode, $node_type = '') {
   }
   
   return $form;
+}
+
+/**
+ * Gets a list of roles that have the admin filter perm
+ * 
+ * @return array
+ *  An numeric indexed key of role IDs
+ */
+function better_formats_get_filter_admin_roles() {
+  static $roles;
+  if ( ! $roles) {
+    $sql = "SELECT rid 
+            FROM {permission} 
+            WHERE perm LIKE '%administer filters%' 
+            ORDER BY rid";
+    $result = db_query($sql);
+    $roles = array();
+    while ($row = db_fetch_object($result)) {
+      $roles[] = $row->rid;
+    }
+  }
+  return $roles;
 }

@@ -44,10 +44,16 @@ function better_formats_defaults_admin_form_validate($form, &$form_state) {
   foreach ($formats as $fid => $format) {
     $roles[$fid] = explode(',', $format->roles);
   }
+  // get roles that have administer filters permission
+  $admin_roles = better_formats_get_filter_admin_roles();
   
   foreach ($form_state['values'] as $key => $values) {
     if (strpos($key, 'node-') === 0 || strpos($key, 'comment-') === 0) {
       list($type, $rid) = explode('-', $key);
+      if (in_array($rid, $admin_roles)) {
+        // role has the admin filters perm so it can use all formats
+        continue;
+      }
       $fid = $values['format'];
       if ($fid != 0 && ! in_array($rid, $roles[$fid])) {
         form_set_error($key, t('Role does not have access to selected format.'));
