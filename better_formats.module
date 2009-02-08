@@ -494,10 +494,7 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $default_for
     drupal_set_message('BF allowed formats: <br /><pre>' . print_r($formats, TRUE) . '</pre>');
   }
 
-  // extra check to ensure default format is available to the user
-  // else we fall back to the site default format
-  $default = isset($formats[$value]) ? $formats[$value]->format : filter_resolve_format(FILTER_FORMAT_DEFAULT);
-  
+  // ensure that our default value is allowed else change default to one that is
   if (isset($formats[$value])) {
     // use existing or bf default value if available
     $default = $value;
@@ -518,7 +515,14 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $default_for
   if (count($formats) > 1 && $show_selection) {
     $collapsed      = user_access('collapse format fieldset by default');
     $collapsible    = user_access('collapsible format selection');
-    $fieldset_title = variable_get('better_formats_fieldset_title', 'Input format');
+    $fieldset_title = variable_get('better_formats_fieldset_title', '');
+    
+    if (module_exists('i18n_strings') && $fieldset_title) {
+      $fieldset_title = tt($fieldset_title);
+    }
+    else {
+      $fieldset_title = $fieldset_title ? $fieldset_title : t('Input format');
+    }    
     
     if ($debug && ! $debug1) {
       drupal_set_message('Collapsible format selection: ' . $collapsible);
@@ -527,7 +531,7 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $default_for
     
     $form = array(
       '#type' => 'fieldset',
-      '#title' => t('@title', array('@title' => $fieldset_title ? $fieldset_title : 'Input format')),
+      '#title' => $fieldset_title,
       '#collapsible' => $collapsible,
       '#collapsed' => $collapsed,
       '#weight' => $weight,
@@ -615,7 +619,12 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $default_for
 
 function theme_better_formats_filter_tips_more_info() {
   $text = variable_get('better_formats_long_tips_link_text', '');
-  $text = $text ? $text : t('More information about formatting options');
+  if (module_exists('i18n_strings') && $text) {
+    $text = tt($text);
+  }
+  else {
+    $text = $text ? $text : t('More information about formatting options');
+  }
   return '<p>' . l($text, 'filter/tips') . '</p>';
 }
 
