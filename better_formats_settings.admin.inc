@@ -41,7 +41,7 @@ function better_formats_settings_admin_form() {
   $form[$key]['better_formats_per_node_type'] = array(
     '#type'  => 'checkbox',
     '#title' => t('Control formats per node type'),
-    '#description' => t('Control formats allowed and default formats per node type. Global settings will be used until a content type admin page is saved with different values.'),
+    '#description' => t('Control formats allowed and default formats per node type. Global settings will be used until a content type admin page is saved.'),
     '#default_value' => variable_get('better_formats_per_node_type', 0),
   );
   
