@@ -10,7 +10,7 @@
 /**
  * Builds the form for the filters admin.
  * 
- * @return array 
+ * @return
  *  FAPI array
  * 
  * @see better_formats_defaults_admin_form_validate()
@@ -20,7 +20,7 @@ function better_formats_defaults_admin_form() {
   $form = array(
     '#tree' => TRUE,
   );
-    
+  
   $nform = better_formats_get_role_default_fields('node');
   $cform = better_formats_get_role_default_fields('comment');
   $form  = array_merge($form, $nform, $cform);
@@ -44,18 +44,18 @@ function better_formats_defaults_admin_form_validate($form, &$form_state) {
   foreach ($formats as $fid => $format) {
     $roles[$fid] = explode(',', $format->roles);
   }
-  // get roles that have administer filters permission
+  // Get roles that have administer filters permission.
   $admin_roles = better_formats_get_filter_admin_roles();
   
   foreach ($form_state['values'] as $key => $values) {
     if (strpos($key, 'node-') === 0 || strpos($key, 'comment-') === 0) {
       list($type, $rid) = explode('-', $key);
       if (in_array($rid, $admin_roles)) {
-        // role has the admin filters perm so it can use all formats
+        // Role has the 'administer filters' permission so it can use all formats.
         continue;
       }
       $fid = $values['format'];
-      if ($fid != 0 && ! in_array($rid, $roles[$fid])) {
+      if ($fid != 0 && !in_array($rid, $roles[$fid])) {
         form_set_error($key, t('Role does not have access to selected format.'));
       }
     }
@@ -69,7 +69,7 @@ function better_formats_defaults_admin_form_validate($form, &$form_state) {
  * @see better_formats_defaults_admin_form_validate()
  */
 function better_formats_defaults_admin_form_submit($form, &$form_state) {
-  // update DB
+  // Update DB.
   $sql = "UPDATE {better_formats_defaults} 
           SET format=%d, weight=%d 
           WHERE rid=%d AND type='%s'";
@@ -87,13 +87,13 @@ function better_formats_defaults_admin_form_submit($form, &$form_state) {
 /**
  * Process variables for better-defaults-admin-form.tpl.php.
  *
- * @param array $variables
+ * @param $variables
  *  The $variables array contains the following arguments:
  *    - $form
  */
 function template_preprocess_better_formats_defaults_admin_form(&$variables) {
   foreach (element_children($variables['form']) as $key) {
-    $form_row =& $variables['form'][$key];
+    $form_row = &$variables['form'][$key];
     
     $type = strpos($key, 'node-') === 0 ? 'node' : 'comment';
     

@@ -14,18 +14,17 @@
 function better_formats_settings_admin_form() {
   $form = array();
   
-  $key = 'better_formats_settings_display';
-  $form[$key] = array(
+  $form['display'] = array(
     '#type' => 'fieldset',
     '#title' => t('Display'),
   );
-  $form[$key]['better_formats_fieldset_title'] = array(
+  $form['display']['better_formats_fieldset_title'] = array(
     '#type'  => 'textfield',
     '#default_value' => variable_get('better_formats_fieldset_title', ''),
     '#title' => t('Selection title'),
     '#description' => t('Change the format selection title. Defaults to "Input format"'),
   );
-  $form[$key]['better_formats_long_tips_link_text'] = array(
+  $form['display']['better_formats_long_tips_link_text'] = array(
     '#type'  => 'textfield',
     '#default_value' => variable_get('better_formats_long_tips_link_text', ''),
     '#title' => t('More format tips link text'),
@@ -33,30 +32,15 @@ function better_formats_settings_admin_form() {
   );
   
   
-  $key = 'better_formats_settings_control';
-  $form[$key] = array(
+  $form['control'] = array(
     '#type' => 'fieldset',
     '#title' => t('Control'),
   );
-  $form[$key]['better_formats_per_node_type'] = array(
+  $form['control']['better_formats_per_node_type'] = array(
     '#type'  => 'checkbox',
     '#title' => t('Control formats per node type'),
     '#description' => t('Control formats allowed and default formats per node type. Global settings will be used until a content type admin page is saved.'),
     '#default_value' => variable_get('better_formats_per_node_type', 0),
-  );
-  
-  $key = 'better_formats_settings_advanced';
-  $form[$key] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Advanced'),
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
-  );
-  $form[$key]['better_formats_debug'] = array(
-    '#type'  => 'checkbox',
-    '#title' => t('Debug mode'),
-    '#description' => t('Turn on debug mode. This will output information to the message area that should be filed with issue reports when asked. Do not leave this turned on.'),
-    '#default_value' => variable_get('better_formats_debug', 0),
   );
   
   return system_settings_form($form);

@@ -57,7 +57,7 @@ function better_formats_menu() {
     'type' => MENU_LOCAL_TASK,
     'weight' => 3,
     'file' => 'better_formats_settings.admin.inc',
-   );
+  );
   $items['admin/settings/filters/defaults'] = array(
     'title' => 'Defaults',
     'description' => 'Manage input formats',
@@ -67,7 +67,7 @@ function better_formats_menu() {
     'type' => MENU_LOCAL_TASK,
     'weight' => 2,
     'file' => 'better_formats_defaults.admin.inc',
-   );
+  );
    
   return $items;
 }
@@ -92,10 +92,10 @@ function better_formats_theme() {
  * Implementation of hook_form_alter().
  */
 function better_formats_form_alter(&$form, $form_state, $form_id) {
-  // alter new node and comment forms 
-  // using $form['#id'] instead of $form_id because $form_id is in the form of 
-  // 'contentType_node_form' which varies with the content type
-  // while $form['#id'] is always 'node-form'
+  // Alter new node and comment forms. 
+  // Using $form['#id'] instead of $form_id because $form_id is in the form of 
+  // 'TYPE_node_form' which varies with the content type while $form['#id'] 
+  // is always 'node-form'.
   switch ($form['#id']) {
     case 'comment-form':
       better_formats_set_comment_format($form);
@@ -106,7 +106,7 @@ function better_formats_form_alter(&$form, $form_state, $form_id) {
       break;
   }
   
-  // alter role add or delete, and node type 
+  // Alter role add/delete and node type forms.
   switch ($form_id) {
     case 'node_type_form':
       if (variable_get('better_formats_per_node_type', FALSE)) {
@@ -115,7 +115,7 @@ function better_formats_form_alter(&$form, $form_state, $form_id) {
       break;
     
     case 'user_admin_new_role':
-      if ( ! in_array('better_formats_new_role', $form['#submit'])) {
+      if (!in_array('better_formats_new_role', $form['#submit'])) {
         $form['#submit'][] = 'better_formats_new_role';
       }
       break;
@@ -135,12 +135,12 @@ function better_formats_form_alter(&$form, $form_state, $form_id) {
  * @see better_formats_node_type_form_submit()
  */
 function better_formats_node_type_form(&$form, $form_state) {
-  // add js to enhance form and fix a bug
+  // Add JS to enhance form.
   drupal_add_js(drupal_get_path('module', 'better_formats') . '/better_formats_node_type_form.js');
   
   $node_type = $form['#node_type']->type;
   
-  // build array of all formats for allowed checkboxes
+  // Build array of all formats for allowed checkboxes.
   $formats = filter_formats();
   foreach ($formats as $format) {
     $format_boxes[$format->format] = $format->name;
@@ -152,8 +152,8 @@ function better_formats_node_type_form(&$form, $form_state) {
     '#title' => t('Input format settings'),
     '#access' => user_access('administer filters'),
     '#collapsible' => TRUE,
-    // setting collapsed to false because the wieght will not be hidden otherwise
-    // the fieldset will be collapsed via JS if enabled
+    // Setting collapsed to false because the wieght will not be hidden otherwise
+    // the fieldset will be collapsed via JS if enabled.
     '#collapsed' => FALSE,
     '#attributes' => array('class' => 'input-format-settings'),
   );
@@ -177,14 +177,12 @@ function better_formats_node_type_form(&$form, $form_state) {
   $form[$key]['better_formats_defaults'] = array_merge($dform, $nform, $cform);
   
   // Attach our validate and submit handlers.
-  // Prepending to the submit array because core will auto save the values in the 
-  // variable table if the values are not removed before hand.
   $form['#validate'][] = 'better_formats_node_type_form_validate';
   $form['#submit'][] = 'better_formats_node_type_form_submit';
 }
 
 /**
- * Handles validatation of the addition to the content type edit form.
+ * Handles validation of the addition to the content type edit form.
  * 
  * @see better_formats_node_type_form()
  * @see better_formats_node_type_form_submit()
@@ -195,7 +193,7 @@ function better_formats_node_type_form_validate($form, &$form_state) {
 }
 
 /**
- * Handles submition of the addition to the content type edit form.
+ * Handles submission of the addition to the content type edit form.
  * 
  * @see better_formats_node_type_form()
  * @see better_formats_node_type_form_validate()
@@ -203,12 +201,12 @@ function better_formats_node_type_form_validate($form, &$form_state) {
 function better_formats_node_type_form_submit($form, &$form_state) {
   $node_type = trim($form_state['values']['type']);
   
-  // remove current db entries
+  // Remove current db entries.
   $sql = "DELETE FROM {better_formats_defaults}
           WHERE type='comment/%s' OR type='node/%s'";
   db_query($sql, $node_type, $node_type);
 
-  // insert defualt values into DB
+  // Insert defualt values into DB.
   $sql = "INSERT INTO {better_formats_defaults} 
           VALUES (%d, '%s', %d, %d, %d)";
   foreach ($form_state['values']['better_formats_defaults'] as $key => $values) {
@@ -218,9 +216,8 @@ function better_formats_node_type_form_submit($form, &$form_state) {
     }
   }
 
-  // node module automatically stores all settings in variable table
-  // BF uses default settings from its own table
-  // so delete the unneeded variable
+  // Node module automatically stores all settings in variable table.
+  // BF saves format defaults to its own table so delete the unneeded variable.
   variable_del('better_formats_defaults_' . $node_type);
 }
 
@@ -230,13 +227,13 @@ function better_formats_node_type_form_submit($form, &$form_state) {
  * @see better_formats_form_alter()
  */
 function better_formats_new_role($form, &$form_state) {
-  // get the rid for the role just created
+  // Get the ID for the role just created.
   $sql = "SELECT rid 
           FROM {role} 
           ORDER BY rid DESC";
   $rid = db_fetch_object(db_query_range($sql, 0, 1))->rid;
   
-  // create stubs in per role table
+  // Create stubs in per role table.
   $sql = "INSERT INTO {better_formats_defaults} 
           VALUES (%d, '%s', %d, %d, %d)";
   db_query($sql, $rid, 'node', 0, 1, 25);
@@ -249,7 +246,7 @@ function better_formats_new_role($form, &$form_state) {
  * @see better_formats_form_alter()
  */
 function better_formats_delete_role($form, &$form_state) {
-  // delete role from format manager table
+  // Delete role from format manager table.
   $sql = "DELETE FROM {better_formats_defaults} 
           WHERE rid = %d";
   db_query($sql, $form['rid']['#value']);
@@ -260,12 +257,12 @@ function better_formats_delete_role($form, &$form_state) {
  */
 function better_formats_node_type($op, $info) {
   if ($op === 'delete') {
-    // delete per node type settings on node type delete
+    // Delete per node type settings on node type delete.
     $sql = "DELETE FROM {better_formats_defaults} 
             WHERE type IN ('node/%s', 'comment/%s')";
     db_query($sql, $info->type, $info->type);
     
-    // delete node type variables
+    // Delete node type variables.
     variable_del('better_formats_allowed_' . $info->type);
   }
 }
@@ -273,7 +270,7 @@ function better_formats_node_type($op, $info) {
 /**
  * Implementation of hook_elements().
  * 
- * Adds a process function to CCK's textarea FAPI element
+ * Adds a process function to CCK's textarea FAPI element.
  */
 function better_formats_elements() {
   return array(
@@ -292,28 +289,23 @@ function better_formats_elements() {
  * @see text_textarea_process()
  */
 function better_formats_textarea_process($element, $edit, $form_state, $form) {
-  $debug = variable_get('better_formats_debug', FALSE);
   $field = $form['#field_info'][$element['#field_name']];
-  
-  if ($debug) {
-    drupal_set_message('CCK textarea field: <br /><pre>' . print_r($field, TRUE) . '</pre>');
-  }
-  
-  if ( ! empty($field['text_processing'])) {
-    // get core default for new or selected format for existing
+ 
+  if (!empty($field['text_processing'])) {
+    // Get core default for new or selected format for existing.
     $filter_key = (count($element['#columns']) == 2) ? $element['#columns'][1] : 'format';
     $format     = isset($element['#value'][$filter_key]) ? $element['#value'][$filter_key] : FILTER_FORMAT_DEFAULT;
     $parents    = array_merge($element['#parents'] , array($filter_key));
     $default    = better_formats_get_default_format('node', $form['type']['#value']);
     
-    // overwrite format default if new node
-    if ( ! isset($form_state['values']['nid'])) {
+    // Overwrite format default if new node.
+    if (!isset($form_state['values']['nid'])) {
       $format = $default;
     }
     
-    // set default format for cck textarea
+    // Set default format for cck textarea.
     $element['#value'][$filter_key] = $format;
-    // set filter selection form
+    // Set filter selection form.
     $element[$filter_key] = better_formats_filter_form($format, $default, $form['type']['#value'], 1, $parents);
   }
   
@@ -326,21 +318,21 @@ function better_formats_textarea_process($element, $edit, $form_state, $form) {
  * @see better_formats_form_alter()
  */
 function better_formats_set_node_format(&$form) {
-  // set core body field
+  // Set core body field.
   if (isset($form['body_field'])) {
-    // get default for new entries
+    // Get default for new entries.
     $default = better_formats_get_default_format('node', $form['type']['#value']);
     
     if (empty($form['nid']['#value'])) {
-      // set format to default for new entries
+      // Set format to default for new entries.
       $format = $default;
     } 
     else {
-      // get existing format for core body field
+      // Get existing format for core body field.
       $format = better_formats_get_current_format($form['body_field']['format']);
     }
     
-    // overwrite the filter form with our own
+    // Overwrite the filter form with our own.
     $form['body_field']['format'] = better_formats_filter_form($format, $default, $form['type']['#value']);
   }
 }
@@ -354,18 +346,18 @@ function better_formats_set_comment_format(&$form) {
   if (isset($form['comment_filter']['format'])) {
     $node = node_load($form['nid']['#value']);
         
-    // get bf default format
+    // Get BF default format.
     $default = better_formats_get_default_format('comment', $node->type);
     
     if (empty($form['cid']['#value'])) {
-      // set format to default for new entries
+      // Set format to default for new entries.
       $format = $default;
     } 
     else {
-      // get existing format for comment
+      // Get existing format for comment.
       $format = better_formats_get_current_format($form['comment_filter']['format']);
     }
-    // overwrite the filter form with our own
+    // Overwrite the filter form with our own.
     $form['comment_filter']['format'] = better_formats_filter_form($format, $default, $node->type);
   }
 }
@@ -373,16 +365,16 @@ function better_formats_set_comment_format(&$form) {
 /**
  * Returns the format for an existing node or comment.
  * 
- * @param array $form
- *  FAPI form array
- * @return int
- *  Format ID
+ * @param $form
+ *  FAPI form array.
+ * @return
+ *  Format ID.
  * 
  * @see better_formats_set_node_format()
  * @see better_formats_set_comment_format()
  */
 function better_formats_get_current_format($form) {
-  // default format to site default in case of error
+  // Default format to site default in case of error.
   $format = FILTER_FORMAT_DEFAULT;
   foreach (element_children($form) as $key) {
     $element = $form[$key];
@@ -401,10 +393,10 @@ function better_formats_get_current_format($form) {
 /**
  * Returns the default format for an new node or comment.
  * 
- * @param string $mode
+ * @param $mode
  *  'node' or 'comment'. Describes the top level type of default.
- * @return int
- *  Format ID
+ * @return
+ *  Format ID.
  * 
  * @see better_formats_set_node_format()
  * @see better_formats_set_comment_format()
@@ -413,35 +405,35 @@ function better_formats_get_current_format($form) {
 function better_formats_get_default_format($mode, $node_type = '') {
   static $format;
   
-  // default our type to the mode (node or comment)
+  // Default our type to the mode (node or comment).
   $type = $mode;
   
-  // check if per node type is enabled and set type accordingly
+  // Check if per node type is enabled and set type accordingly.
   $per_node_type = variable_get('better_formats_per_node_type', FALSE);
   if ($per_node_type && $node_type) {
     $type = $mode . '/' . $node_type;
   }
 
-  // only pull from the DB if we have not already checked for this specific type
-  if ( ! isset($format[$type])) {
-    // get users roles
+  // Only pull from the DB if we have not already checked for this specific type.
+  if (!isset($format[$type])) {
     global $user;
     
     $types  = $type;
     $format = array();
     $roles  = implode(',', array_keys($user->roles));
     
+    // Prepare types for SQL.
     if ($per_node_type && $node_type) {
       $types .= "','" . $mode;
     }
     
-    // get users lowest weight role default
+    // Get user's lowest weight role default.
     $sql = "SELECT format 
             FROM {better_formats_defaults} 
             WHERE rid IN (%s) AND type IN ('$types') 
             ORDER BY type_weight DESC, weight ASC";
-    $value = db_fetch_object(db_query_range($sql, $roles, 0, 1))->format;
-    $format[$type] = filter_resolve_format($value);
+    $row = db_fetch_object(db_query_range($sql, $roles, 0, 1));
+    $format[$type] = filter_resolve_format($row->format);
   }
   
   return $format[$type];
@@ -451,16 +443,14 @@ function better_formats_get_default_format($mode, $node_type = '') {
 /**
  * Better Formats version of filter_form().
  * 
- * Copied from filter.module with slight modification to 
- * handle options for hiding filter selection and/or tips. 
- * The $node_type param was added to the signature to 
- * enable condition by content type.
+ * Copied from filter.module with slight modification to handle options for 
+ * hiding filter selection and/or tips. 
+ * The $node_type param was added to the signature to enable condition by 
+ * content type.
  * 
  * @see filter_form() 
  */
 function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $default_format, $node_type = '', $weight = 1, $parents = array('format')) {
-  static $debug1;
-  $debug           = variable_get('better_formats_debug', FALSE);
   $value           = filter_resolve_format($value);
   $formats         = filter_formats();
   $show_selection  = user_access('show format selection');
@@ -469,46 +459,31 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $default_for
   $per_node_type   = variable_get('better_formats_per_node_type', FALSE);
   $allowed_formats = variable_get('better_formats_allowed_' . $node_type, FALSE);
   
-  if ($debug && ! $debug1) {
-    drupal_set_message('Default format value: ' . $value);
-    drupal_set_message('Node type: ' . $node_type);
-    drupal_set_message('Show format selection: ' . $show_selection);
-    drupal_set_message('Show format tips: ' . $show_tips);
-    drupal_set_message('Show more format tips link: ' . $show_tips_link);
-    drupal_set_message('Control per node type: ' . $per_node_type);
-    drupal_set_message('Node type allowed formats: <br /><pre>' . print_r($allowed_formats, TRUE) . '</pre>');
-    drupal_set_message('Core allowed formats: <br /><pre>' . print_r($formats, TRUE) . '</pre>');
-  }
-  
-  // check if there are node type restrictions on allowed formats
-  // if there are no retrictions set we use the site globals as default
+  // Check if there are node type restrictions on allowed formats.
+  // If there are no retrictions set, we use the site globals as default.
   if ($per_node_type && $allowed_formats) {
     foreach ($formats as $key => $format) {
-      if ( ! in_array($format->format, $allowed_formats)) {
+      if (!in_array($format->format, $allowed_formats)) {
         unset($formats[$key]);
       }
     }
   }
   
-  if ($debug && ! $debug1) {
-    drupal_set_message('BF allowed formats: <br /><pre>' . print_r($formats, TRUE) . '</pre>');
-  }
-
-  // ensure that our default value is allowed else change default to one that is
+  // Ensure that our default value is allowed or change default to one that is.
   if (isset($formats[$value])) {
-    // use existing or bf default value if available
+    // Use existing or BF default value if available.
     $default = $value;
   }
   else if (isset($formats[$default_format])) {
-    // use currently set bf default as a fallback
+    // Use currently set BF default as a fallback.
     $default = $default_format;
-  } else if ( ! empty($formats)) {
-    // current and default format are not allowed so use first allowed format
+  } else if (!empty($formats)) {
+    // Current and default format are not allowed, so use first allowed format.
     reset($formats);
     $default = key($formats);
   }
   else {
-    // use core site default as a fallback if all else fails
+    // Use core site default as a fallback if all else fails.
     $default = filter_resolve_format(FILTER_FORMAT_DEFAULT);
   }
   
@@ -522,11 +497,6 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $default_for
     }
     else {
       $fieldset_title = $fieldset_title ? $fieldset_title : t('Input format');
-    }    
-    
-    if ($debug && ! $debug1) {
-      drupal_set_message('Collapsible format selection: ' . $collapsible);
-      drupal_set_message('Collape format selection by default: ' . $collapsed);
     }
     
     $form = array(
@@ -549,15 +519,14 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $default_for
         '#default_value' => $default,
         '#return_value' => $format->format,
         '#parents' => $parents,
-        '#id' => form_clean_id('edit-'. implode('-', $parents_for_id)),
+        '#id' => form_clean_id('edit-' . implode('-', $parents_for_id)),
       );
       
       if ($show_tips) {
         $form[$format->format]['#description'] = theme('filter_tips', _filter_tips($format->format, FALSE));
       }
       else {
-        // this is to get around an issue with Wysiwyg API popping the last element
-        // should not be needed in D7
+        // Ensure expected filter_form() structure.
         // see http://drupal.org/node/344169
         $form[$format->format]['#description'] = '';
       }
@@ -568,8 +537,7 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $default_for
       $form[] = array('#value' => $extra);
     }
     else {
-      // this is to get around an issue with Wysiwyg API popping the last element
-      // should not be needed in D7
+      // Ensure expected filter_form() structure.
       // see http://drupal.org/node/344169
       $form[] = array('#value' => '');
     }
@@ -580,7 +548,7 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $default_for
     $form[$format->format] = array(
       '#type' => 'value', 
       '#value' => $format->format, 
-      '#parents' => $parents
+      '#parents' => $parents,
     );
     
     if ($show_tips) {
@@ -591,8 +559,7 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $default_for
       );
     } 
     else {
-      // this is to get around an issue with Wysiwyg API looking for guidelines
-      // should not be needed in D7
+      // Ensure expected filter_form() structure.
       // see http://drupal.org/node/344169
       $form['format']['guidelines'] = array(
         '#title' => t('Formatting guidelines'),
@@ -600,23 +567,29 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $default_for
       );
     }
     
-    // only show long tips link if there are guidelines to the format
+    // Only show long tips link if there are guidelines to the format.
     if ($show_tips_link) {
       $extra = theme('better_formats_filter_tips_more_info');
       $form[] = array('#value' => $extra);
-    } else {
+    } 
+    else {
+      // Ensure expected filter_form() structure.
       // see http://drupal.org/node/344169
       $form[] = array('#value' => '');
     }
   }
   
-  // set debug1 to true so that some debug info is only printed once
-  $debug1 = TRUE;
-  
   return $form;
 }
 
-
+/**
+ * Theme function for fitler tips more info.
+ * 
+ * This is copied from theme_fitler_tips_more_info() with small modifications.
+ * 
+ * @return
+ *  Filter tips more info HTML.
+ */
 function theme_better_formats_filter_tips_more_info() {
   $text = variable_get('better_formats_long_tips_link_text', '');
   if (module_exists('i18n_strings') && $text) {
@@ -630,16 +603,16 @@ function theme_better_formats_filter_tips_more_info() {
 
 
 /**
- * Retrieves the formats available to users by role.
+ * Retrieve the formats available to users by role.
  * 
  * Gets all formats then creates an array keyed by role IDs
  * that lists the formats available to that role. This is determined 
  * by Drupal core's format permissions set at 
  * admin/settings/filters/[filter_id].
  * 
- * @param string $default_title
- *  Allows configuration of the label of the default seletion
- * @return array 
+ * @param $default_title
+ *  Allows configuration of the label of the default seletion.
+ * @return 
  *  Multi-dim array with role IDs for keys and list of allowed formats.
  * 
  * @see better_formats_get_role_default_fields()
@@ -648,7 +621,7 @@ function better_formats_get_formats_per_role($default_title = 'Site') {
   $formats = filter_formats();
   $roles   = user_roles();
   
-  // get roles that have administer filters permission
+  // Get roles that have administer filters permission.
   $admin_roles = better_formats_get_filter_admin_roles();
   
   $site_default_format = filter_resolve_format(FILTER_FORMAT_DEFAULT);
@@ -657,10 +630,7 @@ function better_formats_get_formats_per_role($default_title = 'Site') {
     $roles_allowed = $format->roles ? explode(',', trim($format->roles, ',')) : array();
     foreach ($roles as $rid => $role) {
       $format_options[$rid][0] = $default_title . ' default';
-      if ($format->format == $site_default_format || 
-            in_array($rid, $admin_roles) ||
-            in_array($rid, $roles_allowed)
-          ) {
+      if ($format->format == $site_default_format || in_array($rid, $admin_roles) || in_array($rid, $roles_allowed)) {
         $format_options[$rid][$format->format] = $format->name;
       }
     }
@@ -672,11 +642,11 @@ function better_formats_get_formats_per_role($default_title = 'Site') {
 /**
  * Builds FAPI form elements for the default format selection.
  * 
- * @param string $mode
+ * @param $mode
  *  'node' or 'comment'. Top most level type for requested default.
- * @param string $node_type
+ * @param $node_type
  *  Type of node this request is for.
- * @return array
+ * @return
  *  FAPI array for the default select field.
  */
 function better_formats_get_role_default_fields($mode, $node_type = '') {
@@ -729,14 +699,14 @@ function better_formats_get_role_default_fields($mode, $node_type = '') {
 }
 
 /**
- * Gets a list of roles that have the admin filter perm
+ * Get a list of roles that have the admin filter perm.
  * 
- * @return array
- *  An numeric indexed key of role IDs
+ * @return
+ *  An numeric indexed key of role IDs.
  */
 function better_formats_get_filter_admin_roles() {
   static $roles;
-  if ( ! $roles) {
+  if (!$roles) {
     $sql = "SELECT rid 
             FROM {permission} 
             WHERE perm LIKE '%administer filters%' 

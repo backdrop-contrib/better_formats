@@ -8,15 +8,18 @@
  * because the field is hidden by default.
  * Also hides formats that are not available per the Allowed checkboxes.
  */
- 
+
+/**
+ * Initialize Better Formats setttings and defaults.
+ */
 function better_formats_init() {
-  // set default settings check for use of global allowed formats
+  // Set default settings check for use of global allowed formats.
   Drupal.settings.better_formats = {"num_checked" : $('input.bf-allowed-formats:checked').length};
   
-  // collapsing the input format setting after the weight columns have been hidden
+  // Collapsing the input format setting after the weight columns have been hidden.
   $('.input-format-settings > legend > a').click();
   
-  // add hide/show events for allowed formats
+  // Add hide/show events for allowed formats.
   var format_boxes = $('input.bf-allowed-formats');
   format_boxes.click(function() {
     better_formats_toggle_formats($(this));
@@ -28,8 +31,16 @@ function better_formats_init() {
   }
 }
 
+/**
+ * Toggle format display in dropdowns in sync with allowed checkboxes.
+ *
+ * @param el
+ *  DOM element of event.
+ * @param init
+ *  Boolean value to determine first toggle.
+ */
 function better_formats_toggle_formats(el, init) {
-  // hide all formats except site default when the first box is checked
+  // Hide all formats except site default when the first box is checked.
   if (Drupal.settings.better_formats.num_checked === 0) {
     $('select.bf-default-formats option[value != "0"][value != "' + el.val() + '"]').removeAttr('selected').hide();
   }
@@ -44,21 +55,20 @@ function better_formats_toggle_formats(el, init) {
       }
   });
   
-  // do not modify count on intial run
+  // Do not modify count on intial run.
   if ( ! init) {
     if (el.attr('checked')) {
       Drupal.settings.better_formats.num_checked += 1;
     }
     else if (Drupal.settings.better_formats.num_checked > 0) {
-      // keep num_checked from going below zero
+      // Keep num_checked from going below zero.
       Drupal.settings.better_formats.num_checked -= 1;
     }
   }
   
-  // show all globally allowed formats if no boxes are checked
+  // Show all globally allowed formats if no boxes are checked.
   if (Drupal.settings.better_formats.num_checked === 0) {
-    // show global formats available to roles 
-    // because no format allowed boxes are checked
+    // Show global formats available to roles because no format allowed boxes are checked.
     $('select.bf-default-formats option').show();
   }
 }

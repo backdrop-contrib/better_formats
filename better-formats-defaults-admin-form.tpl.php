@@ -1,8 +1,9 @@
 <?php
 // $Id$
+
 /**
  * @file
- * Default theme implementation to configure format manager filter admin page
+ * Default theme implementation to configure format manager filter admin page.
  *
  * Available variables:
  * - $form_submit: Form submit button.

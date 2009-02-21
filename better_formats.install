@@ -58,16 +58,16 @@ function better_formats_schema() {
  * Implementation of hook_install().
  */
 function better_formats_install() {
-  // create tables
+  // Create tables.
   drupal_install_schema('better_formats');
   
-  // increase module weight to prevent compatibility issues
+  // Increase module weight to prevent compatibility issues.
   $sql = "UPDATE {system} 
           SET weight = 100 
           WHERE name = 'better_formats'";
   db_query($sql);
   
-  // insert defaults
+  // Insert format defaults.
   $roles = user_roles();
   $sql   = "INSERT INTO {better_formats_defaults} 
             VALUES (%d, '%s', %d, %d, %d)";
@@ -76,9 +76,9 @@ function better_formats_install() {
     db_query($sql, $rid, 'comment', 0, 1, 0);
   }
   
-  // default perms to be like core defaults
+  // Set default perms to be like core defaults.
   $default_perms = ',show format selection,show format tips,show more format tips link,collapsible format selection,collapse format fieldset by default';
-  // get current core perms
+  // Get current core perms.
   $sql = "SELECT * 
           FROM {permission} 
           WHERE rid IN (1,2)";
@@ -87,7 +87,7 @@ function better_formats_install() {
   while ($row = db_fetch_object($result)) {
     $role_perms[] = $row;
   }
-  // add perms to core roles (anonymous user, authenticated user)
+  // Add perms to core roles (anonymous user, authenticated user).
   foreach ($role_perms as $perms) {
     $sql = "UPDATE {permission} 
             SET perm = '%s' 
@@ -100,8 +100,10 @@ function better_formats_install() {
  * Implementation of hook_uninstall().
  */
 function better_formats_uninstall() {
+  // Remove tables.
   drupal_uninstall_schema('better_formats');
-  // delete settings variables from varible table
+  
+  // Delete settings from varible table.
   $sql = "DELETE FROM {variable} 
           WHERE name LIKE 'better_formats%'";
   db_query($sql);
