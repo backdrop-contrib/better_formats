@@ -233,7 +233,8 @@ function better_formats_new_role($form, &$form_state) {
   $sql = "SELECT rid 
           FROM {role} 
           ORDER BY rid DESC";
-  $rid = db_fetch_object(db_query_range($sql, 0, 1))->rid;
+  $row = db_fetch_object(db_query_range($sql, 0, 1));
+  $rid = $row->rid;
   
   // Create stubs in per role table.
   $sql = "INSERT INTO {better_formats_defaults} 
