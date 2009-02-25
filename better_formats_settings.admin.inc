@@ -8,12 +8,12 @@
 
 /**
  * FAPI form builder for admin/settings/filters/settings page.
- * 
+ *
  * @see better_formats_menu()
  */
 function better_formats_settings_admin_form() {
   $form = array();
-  
+
   $form['display'] = array(
     '#type' => 'fieldset',
     '#title' => t('Display'),
@@ -30,8 +30,8 @@ function better_formats_settings_admin_form() {
     '#title' => t('More format tips link text'),
     '#description' => t('Change the format full tips link text. Defaults to "More information about formatting options"'),
   );
-  
-  
+
+
   $form['control'] = array(
     '#type' => 'fieldset',
     '#title' => t('Control'),
@@ -42,6 +42,6 @@ function better_formats_settings_admin_form() {
     '#description' => t('Control formats allowed and default formats per node type. Global settings will be used until a content type admin page is saved.'),
     '#default_value' => variable_get('better_formats_per_node_type', 0),
   );
-  
+
   return system_settings_form($form);
 }
