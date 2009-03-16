@@ -297,15 +297,15 @@ function better_formats_textarea_process($element, $edit, $form_state, $form) {
   if (!empty($field['text_processing'])) {
     // Get core default for new or selected format for existing.
     $filter_key = (count($element['#columns']) == 2) ? $element['#columns'][1] : 'format';
-    $format     = isset($element['#value'][$filter_key]) ? $element['#value'][$filter_key] : FILTER_FORMAT_DEFAULT;
+    $format     = isset($element['#value'][$filter_key]) ? $element['#value'][$filter_key] : $element['#default_value'][$filter_key];
     $parents    = array_merge($element['#parents'] , array($filter_key));
     $default    = better_formats_get_default_format('node', $form['type']['#value']);
 
     // Overwrite format default if new node.
-    if (!isset($form_state['values']['nid'])) {
+    if (!isset($form_state['values']['nid']) || !isset($format)) {
       $format = $default;
     }
-
+    $format = filter_resolve_format($format);
     // Set default format for cck textarea.
     $element['#value'][$filter_key] = $format;
     // Set filter selection form.
