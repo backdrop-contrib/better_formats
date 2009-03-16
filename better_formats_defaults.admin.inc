@@ -5,14 +5,14 @@
  * @file
  * Contains FAPI and theme functions for the format defaults form.
  */
- 
- 
+
+
 /**
  * Builds the form for the filters admin.
- * 
+ *
  * @return
  *  FAPI array
- * 
+ *
  * @see better_formats_defaults_admin_form_validate()
  * @see better_formats_defaults_admin_form_submit()
  */
@@ -20,22 +20,22 @@ function better_formats_defaults_admin_form() {
   $form = array(
     '#tree' => TRUE,
   );
-  
+
   $nform = better_formats_get_role_default_fields('node');
   $cform = better_formats_get_role_default_fields('comment');
   $form  = array_merge($form, $nform, $cform);
-  
+
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Save defaults'),
   );
-  
+
   return $form;
 }
 
 /**
  * Validates better_formats_admin_filter_form.
- * 
+ *
  * @see better_formats_defaults_admin_form()
  * @see better_formats_defaults_admin_form_submit()
  */
@@ -46,7 +46,7 @@ function better_formats_defaults_admin_form_validate($form, &$form_state) {
   }
   // Get roles that have administer filters permission.
   $admin_roles = better_formats_get_filter_admin_roles();
-  
+
   foreach ($form_state['values'] as $key => $values) {
     if (strpos($key, 'node-') === 0 || strpos($key, 'comment-') === 0) {
       list($type, $rid) = explode('-', $key);
@@ -64,29 +64,29 @@ function better_formats_defaults_admin_form_validate($form, &$form_state) {
 
 /**
  * Updates database from better_formats_admin_filter_form.
- * 
+ *
  * @see better_formats_defaults_admin_form()
  * @see better_formats_defaults_admin_form_validate()
  */
 function better_formats_defaults_admin_form_submit($form, &$form_state) {
   // Update DB.
-  $sql = "UPDATE {better_formats_defaults} 
-          SET format=%d, weight=%d 
+  $sql = "UPDATE {better_formats_defaults}
+          SET format=%d, weight=%d
           WHERE rid=%d AND type='%s'";
-  
+
   foreach ($form_state['values'] as $key => $values) {
     if (strpos($key, 'node-') === 0 || strpos($key, 'comment-') === 0) {
       list($type, $rid) = explode('-', $key);
       db_query($sql, $values['format'], $values['weight'], $rid, $type);
     }
   }
-    
+
   drupal_set_message(t('Defaults have been saved.'));
 }
 
 /**
  * Builds FAPI form elements for the default format selection.
- * 
+ *
  * @param $mode
  *  'node' or 'comment'. Top most level type for requested default.
  * @param $node_type
@@ -99,31 +99,31 @@ function better_formats_get_role_default_fields($mode, $node_type = '') {
   $format_options = better_formats_get_formats_per_role();
   $type = $types = $mode;
   $per_node_type = variable_get('better_formats_per_node_type', FALSE);
-  
+
   if ($per_node_type && $node_type) {
     $type = $mode . '/' . $node_type;
     $types = $type . "','" . $mode;
   }
-  
+
   // get data from db
-  $sql = "SELECT bf.*, role.name 
-          FROM {better_formats_defaults} AS bf 
+  $sql = "SELECT bf.*, role.name
+          FROM {better_formats_defaults} AS bf
           INNER JOIN {role} AS role
-          ON bf.rid = role.rid 
-          WHERE bf.type IN ('$types') 
+          ON bf.rid = role.rid
+          WHERE bf.type IN ('$types')
           ORDER BY bf.type_weight DESC, bf.weight, role.rid";
   $result = db_query($sql);
-  
+
   $roles_set = array();
-  
+
   while ($role = db_fetch_object($result)) {
     if (in_array($role->rid, $roles_set)) {
       continue;
     }
-    
+
     $roles_set[] = $role->rid;
     $key = $mode . '-' . $role->rid;
-    
+
     $form[$key]['role'] = array(
       '#value' => $role->name,
     );
@@ -139,34 +139,34 @@ function better_formats_get_role_default_fields($mode, $node_type = '') {
       '#default_value' => $role->weight,
     );
   }
-  
+
   return $form;
 }
 
 /**
  * Retrieve the formats available to users by role.
- * 
+ *
  * Gets all formats then creates an array keyed by role IDs
- * that lists the formats available to that role. This is determined 
- * by Drupal core's format permissions set at 
+ * that lists the formats available to that role. This is determined
+ * by Drupal core's format permissions set at
  * admin/settings/filters/[filter_id].
- * 
+ *
  * @param $default_title
  *  Allows configuration of the label of the default seletion.
- * @return 
+ * @return
  *  Multi-dim array with role IDs for keys and list of allowed formats.
- * 
+ *
  * @see better_formats_get_role_default_fields()
  */
 function better_formats_get_formats_per_role($default_title = 'Site') {
   $formats = filter_formats();
   $roles   = user_roles();
-  
+
   // Get roles that have administer filters permission.
   $admin_roles = better_formats_get_filter_admin_roles();
-  
+
   $site_default_format = filter_resolve_format(FILTER_FORMAT_DEFAULT);
-  
+
   foreach ($formats as $format) {
     $roles_allowed = $format->roles ? explode(',', trim($format->roles, ',')) : array();
     foreach ($roles as $rid => $role) {
@@ -176,22 +176,22 @@ function better_formats_get_formats_per_role($default_title = 'Site') {
       }
     }
   }
-  
+
   return $format_options;
 }
 
 /**
  * Get a list of roles that have the admin filter perm.
- * 
+ *
  * @return
  *  An numeric indexed key of role IDs.
  */
 function better_formats_get_filter_admin_roles() {
   static $roles;
   if (!$roles) {
-    $sql = "SELECT rid 
-            FROM {permission} 
-            WHERE perm LIKE '%administer filters%' 
+    $sql = "SELECT rid
+            FROM {permission}
+            WHERE perm LIKE '%administer filters%'
             ORDER BY rid";
     $result = db_query($sql);
     $roles = array();
@@ -212,9 +212,9 @@ function better_formats_get_filter_admin_roles() {
 function template_preprocess_better_formats_defaults_admin_form(&$variables) {
   foreach (element_children($variables['form']) as $key) {
     $form_row = &$variables['form'][$key];
-    
+
     $type = strpos($key, 'node-') === 0 ? 'node' : 'comment';
-    
+
     if (isset($form_row['role'])) {
       // Set special classes needed for table drag and drop.
       $form_row['weight']['#attributes']['class'] = 'better-formats-role-' . $type . '-weight';
@@ -223,10 +223,10 @@ function template_preprocess_better_formats_defaults_admin_form(&$variables) {
       $row->role = drupal_render($form_row['role']);
       $row->format_select = drupal_render($form_row['format']);
       $row->weight_select = drupal_render($form_row['weight']);
-      
+
       $variables[$type . '_default_rows'][$key] = $row;
     }
   }
-  
+
   $variables['form_submit'] = drupal_render($variables['form']);
 }
