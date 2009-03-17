@@ -23,7 +23,7 @@
 ?>
 <div class="description"><?php print t('Only formats that a role has permission to use are shown.'); ?></div>
 <fieldset>
-  <legend><strong>Node Defaults</strong></legend>
+  <legend><strong><?php print t('Node Defaults'); ?></strong></legend>
   <table id="node-format-defaults">
     <thead>
       <tr>
@@ -47,7 +47,7 @@
 </fieldset>
 
 <fieldset>
-  <legend><strong>Comment Defaults</strong></legend>
+  <legend><strong><?php print t('Comment Defaults'); ?></strong></legend>
   <table id="comment-format-defaults">
     <thead>
       <tr>

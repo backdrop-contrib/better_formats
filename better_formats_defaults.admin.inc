@@ -151,14 +151,12 @@ function better_formats_get_role_default_fields($mode, $node_type = '') {
  * by Drupal core's format permissions set at
  * admin/settings/filters/[filter_id].
  *
- * @param $default_title
- *  Allows configuration of the label of the default seletion.
  * @return
  *  Multi-dim array with role IDs for keys and list of allowed formats.
  *
  * @see better_formats_get_role_default_fields()
  */
-function better_formats_get_formats_per_role($default_title = 'Site') {
+function better_formats_get_formats_per_role() {
   $formats = filter_formats();
   $roles   = user_roles();
 
@@ -170,7 +168,7 @@ function better_formats_get_formats_per_role($default_title = 'Site') {
   foreach ($formats as $format) {
     $roles_allowed = $format->roles ? explode(',', trim($format->roles, ',')) : array();
     foreach ($roles as $rid => $role) {
-      $format_options[$rid][0] = $default_title . ' default';
+      $format_options[$rid][0] = t('Site default');
       if ($format->format == $site_default_format || in_array($rid, $admin_roles) || in_array($rid, $roles_allowed)) {
         $format_options[$rid][$format->format] = $format->name;
       }
