@@ -98,6 +98,7 @@ function better_formats_form_alter(&$form, $form_state, $form_id) {
   // is always 'node-form'.
   switch ($form['#id']) {
     case 'comment-form':
+    case 'panels-comment-form':
       better_formats_set_comment_format($form);
       break;
 
