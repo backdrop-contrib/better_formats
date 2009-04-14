@@ -11,7 +11,8 @@ Features
     * Set selection fieldset title.
     * Set default formats for nodes and comments separately.
     * Works with CCK textareas.
-    * Panels comment support
+    * Panels comment support.
+    * I18n module support.
     * and more.
 
 -------------------------------------------------------------------
