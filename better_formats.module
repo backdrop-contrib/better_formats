@@ -274,25 +274,29 @@ function better_formats_node_type($op, $info) {
 /**
  * Implementation of hook_elements().
  *
- * Adds a process function to CCK's textarea FAPI element.
+ * Adds a process function to CCK's text module FAPI elements.
  */
 function better_formats_elements() {
   return array(
+    'text_textfield' => array(
+      '#process' => array('better_formats_text_process'),
+    ),
     'text_textarea' => array(
-      '#process' => array('better_formats_textarea_process'),
+      '#process' => array('better_formats_text_process'),
     ),
   );
 }
 
 /**
- * Processes a CCK textarea element.
+ * Processes a CCK text elements.
  *
- * Resets the textareas filter area with bettter_formats default.
- * This function is used to affect CCK textareas not core fields.
+ * Resets the filter area with bettter_formats default.
+ * This function is used to affect CCK text module fields not core fields.
  *
+ * @see text_textfield_process()
  * @see text_textarea_process()
  */
-function better_formats_textarea_process($element, $edit, $form_state, $form) {
+function better_formats_text_process($element, $edit, $form_state, $form) {
   $field = $form['#field_info'][$element['#field_name']];
 
   if (!empty($field['text_processing'])) {
