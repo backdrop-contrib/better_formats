@@ -85,18 +85,21 @@ function better_formats_install() {
   $result = db_query($sql);
   $row_perms = array();
   while ($row = db_fetch_object($result)) {
-    $role_perms[] = $row;
+    $role_perms[$row->rid] = $row;
   }
-  // Add perms to core roles (anonymous user, authenticated user).
-  foreach ($role_perms as $perms) {
-    $sql = "UPDATE {permission}
-            SET perm = '%s'
-            WHERE pid = %d";
-    db_query($sql, $perms->perm . $default_perms, $perms->pid);
+  // If a role has no permissions set it will not have a row in the database.
+  // Assume that roles do not need perms set for BF as well if none are set.
+  if (!empty($role_perms)) {
+    // Add perms to core roles (anonymous user, authenticated user).
+    foreach ($role_perms as $perms) {
+      $sql = "UPDATE {permission}
+              SET perm = '%s'
+              WHERE pid = %d";
+      db_query($sql, $perms->perm . $default_perms, $perms->pid);
+    }
+    // Clear the cached pages
+    cache_clear_all();
   }
-
-  // Clear the cached pages
-  cache_clear_all();
 }
 
 /**
