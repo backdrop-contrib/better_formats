@@ -74,6 +74,7 @@ function better_formats_install() {
   foreach ($roles as $rid => $role) {
     db_query($sql, $rid, 'node', 0, 1, 0);
     db_query($sql, $rid, 'comment', 0, 1, 0);
+    db_query($sql, $rid, 'block', 0, 1, 0);
   }
 
   // Set default perms to be like core defaults.

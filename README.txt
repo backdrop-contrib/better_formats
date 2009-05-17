@@ -9,7 +9,7 @@ Features
     * Expand the selection fieldset by default.
     * Disable the expand/collapse of the selection fieldset.
     * Set selection fieldset title.
-    * Set default formats for nodes and comments separately.
+    * Set default formats for nodes, comments, and blocks separately.
     * Works with CCK textareas.
     * Panels comment support.
     * I18n module support.

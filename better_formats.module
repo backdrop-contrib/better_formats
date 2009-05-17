@@ -105,6 +105,11 @@ function better_formats_form_alter(&$form, $form_state, $form_id) {
     case 'node-form':
       better_formats_set_node_format($form);
       break;
+
+     case 'block-add-block-form':
+     case 'block-admin-configure':
+      better_formats_set_block_format($form);
+      break;
   }
 
   // Alter role add/delete and node type forms.
@@ -242,6 +247,7 @@ function better_formats_new_role($form, &$form_state) {
           VALUES (%d, '%s', %d, %d, %d)";
   db_query($sql, $rid, 'node', 0, 1, 25);
   db_query($sql, $rid, 'comment', 0, 1, 25);
+  db_query($sql, $rid, 'block', 0, 1, 25);
 }
 
 /**
@@ -371,6 +377,30 @@ function better_formats_set_comment_format(&$form) {
 }
 
 /**
+ * Processes formats for core block form.
+ *
+ * @see better_formats_form_alter()
+ */
+function better_formats_set_block_format(&$form) {
+  if (isset($form['block_settings']['body_field']['format'])) {
+    // Get BF default format.
+    $default = better_formats_get_default_format('block');
+
+    if (empty($form['delta']['#value'])) {
+      // Set format to default for new entries.
+      $format = $default;
+    }
+    else {
+      // Get existing format for block.
+      $format = better_formats_get_current_format($form['block_settings']['body_field']['format']);
+    }
+
+    // Overwrite the filter form with our own.
+    $form['block_settings']['body_field']['format'] = better_formats_filter_form($format, $default);
+  }
+}
+
+/**
  * Returns the format for an existing node or comment.
  *
  * @param $form
@@ -402,7 +432,7 @@ function better_formats_get_current_format($form) {
  * Returns the default format for an new node or comment.
  *
  * @param $mode
- *  'node' or 'comment'. Describes the top level type of default.
+ *  'node', 'comment', or 'block'. Describes the top level type of default.
  * @return
  *  Format ID.
  *
@@ -431,7 +461,7 @@ function better_formats_get_default_format($mode, $node_type = '') {
     $roles  = implode(',', array_keys($user->roles));
 
     // Prepare types for SQL.
-    if ($per_node_type && $node_type) {
+    if ($mode !== 'block' && $per_node_type && $node_type) {
       $types .= "','" . $mode;
     }
 
@@ -485,7 +515,8 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $default_for
   else if (isset($formats[$default_format])) {
     // Use currently set BF default as a fallback.
     $default = $default_format;
-  } else if (!empty($formats)) {
+  }
+  else if (!empty($formats)) {
     // Current and default format are not allowed, so use first allowed format.
     reset($formats);
     $default = key($formats);
