@@ -71,30 +71,32 @@
   </table>
 </fieldset>
 
-<?php if (isset($block_default_rows)): ?>
+<?php if ($_GET['q'] === 'admin/settings/filters/defaults'): ?>
 <fieldset>
   <legend><strong><?php print t('Block defaults'); ?></strong></legend>
-  <table id="block-format-defaults">
-    <thead>
-      <tr>
-        <th><?php print t('Role'); ?></th>
-        <th><?php print t('Default format'); ?></th>
-        <th><?php print t('Weight'); ?></th>
-      </tr>
-    </thead>
-    <tbody>
-      <?php $row = 0; ?>
-      <?php foreach ($block_default_rows as $rid => $data): ?>
-      <tr class="draggable <?php print $row % 2 ? 'odd' : 'even'; ?>">
-        <td class=""><?php print $data->role; ?></td>
-        <td><?php print $data->format_select; ?></td>
-        <td><?php print $data->weight_select; ?></td>
-      </tr>
-      <?php $row++; ?>
-      <?php endforeach; ?>
-    </tbody>
-  </table>
-<div class="description"><?php print t('Only roles that have "administer blocks" permission are shown.'); ?></div>
+  <?php if (isset($block_default_rows)): ?>
+    <table id="block-format-defaults">
+      <thead>
+        <tr>
+          <th><?php print t('Role'); ?></th>
+          <th><?php print t('Default format'); ?></th>
+          <th><?php print t('Weight'); ?></th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php $row = 0; ?>
+        <?php foreach ($block_default_rows as $rid => $data): ?>
+        <tr class="draggable <?php print $row % 2 ? 'odd' : 'even'; ?>">
+          <td class=""><?php print $data->role; ?></td>
+          <td><?php print $data->format_select; ?></td>
+          <td><?php print $data->weight_select; ?></td>
+        </tr>
+        <?php $row++; ?>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+  <?php endif; ?>
+  <div class="description"><?php print t('Only roles that have the "administer blocks" permission are shown.'); ?></div>
 </fieldset>
 <?php endif; ?>
 
