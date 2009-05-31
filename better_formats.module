@@ -34,7 +34,9 @@ function better_formats_help($path, $arg) {
  */
 function better_formats_perm() {
   return array(
-    'show format selection',
+    'show format selection for nodes',
+    'show format selection for comments',
+    'show format selection for blocks',
     'show format tips',
     'show more format tips link',
     'collapse format fieldset by default',
