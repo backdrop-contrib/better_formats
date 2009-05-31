@@ -102,6 +102,7 @@ function better_formats_get_role_default_fields($mode, $node_type = '') {
   $per_node_type = variable_get('better_formats_per_node_type', FALSE);
   $block_admins  = better_formats_get_roles_by_perm('administer blocks');
 
+
   if ($per_node_type && $node_type) {
     $type = $mode . '/' . $node_type;
     $types = $type . "','" . $mode;
@@ -120,6 +121,7 @@ function better_formats_get_role_default_fields($mode, $node_type = '') {
 
   while ($role = db_fetch_object($result)) {
     if (in_array($role->rid, $roles_set) || ($mode === 'block' && !in_array($role->rid, $block_admins))) {
+//    if (in_array($role->rid, $roles_set)) {
       continue;
     }
 
