@@ -102,7 +102,6 @@ function better_formats_get_role_default_fields($mode, $node_type = '') {
   $per_node_type = variable_get('better_formats_per_node_type', FALSE);
   $block_admins  = better_formats_get_roles_by_perm('administer blocks');
 
-
   if ($per_node_type && $node_type) {
     $type = $mode . '/' . $node_type;
     $types = $type . "','" . $mode;
@@ -121,7 +120,6 @@ function better_formats_get_role_default_fields($mode, $node_type = '') {
 
   while ($role = db_fetch_object($result)) {
     if (in_array($role->rid, $roles_set) || ($mode === 'block' && !in_array($role->rid, $block_admins))) {
-//    if (in_array($role->rid, $roles_set)) {
       continue;
     }
 
@@ -185,18 +183,22 @@ function better_formats_get_formats_per_role() {
 /**
  * Get a list of roles that have a permission.
  *
+ * @param $perm
+ *  Permission string to get roles for.
+ * @param $reset
+ *  Boolean to clear static cache.
  * @return
- *  An numeric indexed key of role IDs.
+ *  An array of role IDs that have the requested permission.
  */
-function better_formats_get_roles_by_perm($perm) {
+function better_formats_get_roles_by_perm($perm, $reset = FALSE) {
   static $roles;
-  if (!$roles[$perm]) {
+  if ($reset || !$roles[$perm]) {
     $sql = "SELECT rid
             FROM {permission}
             WHERE perm LIKE '%$perm%'
             ORDER BY rid";
     $result = db_query($sql);
-    $roles = array();
+    $roles[$perm] = array();
     while ($row = db_fetch_object($result)) {
       $roles[$perm][] = $row->rid;
     }
@@ -207,7 +209,7 @@ function better_formats_get_roles_by_perm($perm) {
 /**
  * Process variables for better-defaults-admin-form.tpl.php.
  *
- * @param $variables
+ * @param $vars
  *  The $variables array contains the following arguments:
  *    - $form
  */
