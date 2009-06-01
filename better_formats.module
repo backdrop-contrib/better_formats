@@ -322,7 +322,7 @@ function better_formats_text_process($element, $edit, $form_state, $form) {
     // Set default format for cck textarea.
     $element['#value'][$filter_key] = $format;
     // Set filter selection form.
-    $element[$filter_key] = better_formats_filter_form($format, $default, $form['type']['#value'], 1, $parents);
+    $element[$filter_key] = better_formats_filter_form($format, $default, 'node', $form['type']['#value'], 1, $parents);
   }
 
   return $element;
@@ -349,7 +349,7 @@ function better_formats_set_node_format(&$form) {
     }
 
     // Overwrite the filter form with our own.
-    $form['body_field']['format'] = better_formats_filter_form($format, $default, $form['type']['#value']);
+    $form['body_field']['format'] = better_formats_filter_form($format, $default, 'node', $form['type']['#value']);
   }
 }
 
@@ -374,7 +374,7 @@ function better_formats_set_comment_format(&$form) {
       $format = better_formats_get_current_format($form['comment_filter']['format']);
     }
     // Overwrite the filter form with our own.
-    $form['comment_filter']['format'] = better_formats_filter_form($format, $default, $node->type);
+    $form['comment_filter']['format'] = better_formats_filter_form($format, $default, 'comment', $node->type);
   }
 }
 
@@ -398,7 +398,7 @@ function better_formats_set_block_format(&$form) {
     }
 
     // Overwrite the filter form with our own.
-    $form['block_settings']['body_field']['format'] = better_formats_filter_form($format, $default);
+    $form['block_settings']['body_field']['format'] = better_formats_filter_form($format, $default, 'block');
   }
 }
 
@@ -490,10 +490,10 @@ function better_formats_get_default_format($mode, $node_type = '') {
  *
  * @see filter_form()
  */
-function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $default_format, $node_type = '', $weight = 1, $parents = array('format')) {
+function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $default_format, $mode = 'node', $node_type = '', $weight = 1, $parents = array('format')) {
   $value           = filter_resolve_format($value);
   $formats         = filter_formats();
-  $show_selection  = user_access('show format selection');
+  $show_selection  = user_access('show format selection for ' . $mode . 's');
   $show_tips       = user_access('show format tips');
   $show_tips_link  = user_access('show more format tips link');
   $per_node_type   = variable_get('better_formats_per_node_type', FALSE);
