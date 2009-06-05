@@ -18,11 +18,6 @@ function better_formats_help($path, $arg) {
       $output = '<p>' . t('See the module README.txt file in the better_formats module directory for help.') . '</p>';
       break;
 
-    case 'admin/settings/filters/defaults':
-      $output  = '<p>' . t('Set the global default formats per role for NEW nodes and comments. These settings will be applied to all nodes and comments in the site unless overriden by specific content type defaults.') . '</p>';
-      $output .= '<p>' . t('Arrange the roles to provide weight that will determine what format is selected when a user has more than one role. Remember, that all logged in users are automatically given the authenticated user role in addition to their other assigned roles. For example, if you have an admin role place it at the top and generally you would want your anonymous user role at the bottom.') . '</p>';
-      break;
-
     default:
       $output = '';
   }

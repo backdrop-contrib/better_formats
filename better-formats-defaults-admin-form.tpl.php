@@ -22,7 +22,10 @@
   drupal_add_tabledrag('comment-format-defaults', 'order', 'sibling', 'better-formats-role-comment-weight');
   drupal_add_tabledrag('block-format-defaults', 'order', 'sibling', 'better-formats-role-block-weight');
 ?>
-<div class="description"><?php print t('Only formats that a role has permission to use are shown.'); ?></div>
+<div class="description">
+  <?php print '<p><strong>' . t('Defaults only affect NEW content NOT existing content.') . '</strong></p>'; ?>
+  <?php print '<p><strong>' . t('Place roles in order of precedence by dragging more important roles to the top.') . '</strong></p>'; ?>
+</div>
 <fieldset>
   <legend><strong><?php print t('Node defaults'); ?></strong></legend>
   <table id="node-format-defaults">
@@ -99,5 +102,9 @@
   <div class="description"><?php print t('Only roles that have the "administer blocks" permission are shown.'); ?></div>
 </fieldset>
 <?php endif; ?>
+
+<div class="description">
+  <?php print '<p>' . t('* Only formats that a role has permission to use are shown in the default format drop downs.') . '</p>'; ?>
+</div>
 
 <?php print $form_submit; ?>
