@@ -103,8 +103,8 @@ function better_formats_form_alter(&$form, $form_state, $form_id) {
       better_formats_set_node_format($form);
       break;
 
-     case 'block-add-block-form':
-     case 'block-admin-configure':
+    case 'block-add-block-form':
+    case 'block-admin-configure':
       better_formats_set_block_format($form);
       break;
   }
