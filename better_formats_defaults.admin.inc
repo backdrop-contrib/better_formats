@@ -56,7 +56,8 @@ function better_formats_defaults_admin_form_validate($form, &$form_state) {
         continue;
       }
       $fid = $values['format'];
-      if ($fid != 0 && !in_array($rid, $roles[$fid])) {
+      $site_default = filter_resolve_format(FILTER_FORMAT_DEFAULT);
+      if ($fid != 0 && !in_array($rid, $roles[$fid]) && $fid !== $site_default) {
         form_set_error($key, t('Role does not have access to selected format.'));
       }
     }
