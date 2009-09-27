@@ -77,7 +77,6 @@
 <?php if ($_GET['q'] === 'admin/settings/filters/defaults'): ?>
 <fieldset>
   <legend><strong><?php print t('Block defaults'); ?></strong></legend>
-  <div class="description"><?php print t('Only roles that have the "administer blocks" permission are shown.'); ?></div>
   <?php if (isset($block_default_rows)): ?>
     <table id="block-format-defaults">
       <thead>
