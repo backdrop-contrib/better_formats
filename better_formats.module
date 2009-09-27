@@ -334,7 +334,7 @@ function better_formats_set_node_format(&$form) {
     // Get default for new entries.
     $default = better_formats_get_default_format('node', $form['type']['#value']);
 
-    if (empty($form['nid']['#value'])) {
+    if (empty($form['nid']['#value']) && !isset($form['#parameters'][1]['node_preview'])) {
       // Set format to default for new entries.
       $format = $default;
     }
