@@ -192,7 +192,7 @@ function better_formats_get_formats_per_role() {
  */
 function better_formats_get_roles_by_perm($perm, $reset = FALSE) {
   static $roles;
-  if ($reset || !$roles[$perm]) {
+  if ($reset || !isset($roles[$perm])) {
     $sql = "SELECT rid
             FROM {permission}
             WHERE perm LIKE '%$perm%'
