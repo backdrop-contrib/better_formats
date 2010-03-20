@@ -26,7 +26,8 @@ Installation:
 
 Simple 4-step usage:
 
-1. Go to user permissions (/admin/user/permissions) and set your permissions.
+1. Go to user permissions (/admin/user/permissions) and set your permissions for
+    what and how to show the format selection and tips.
 2. Navigate to Site Configuration > Input formats (/admin/settings/filters)
 3. There you will find 2 tabs where you can change your settings.
     Defaults (/admin/settings/filters/defauts)
@@ -59,6 +60,12 @@ Let's say you have the 2 roles that come with Drupal and have added an
 -------------------------------------------------------------------
 
 Extended usage and notes:
+
+* To adjust how the format selection is shown to the user, edit the permissions
+  at /admin/user/permissions.
+
+* To control whether or not the format help tips and help link are shown, edit
+  the permissions at /admin/user/permissions.
 
 * The default format will only be set on NEW nodes and comments. The format
   selected when the form is submitted is used for future editing purposes.
