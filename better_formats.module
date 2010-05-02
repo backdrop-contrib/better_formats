@@ -537,7 +537,7 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $default_for
 
     $form = array(
       '#type' => 'fieldset',
-      '#title' => $fieldset_title,
+      '#title' => check_plain($fieldset_title),
       '#collapsible' => $collapsible,
       '#collapsed' => $collapsed,
       '#weight' => $weight,
@@ -551,7 +551,7 @@ function better_formats_filter_form($value = FILTER_FORMAT_DEFAULT, $default_for
       $parents_for_id = array_merge($parents, array($format->format));
       $form[$format->format] = array(
         '#type' => 'radio',
-        '#title' => $format->name,
+        '#title' => check_plain($format->name),
         '#default_value' => $default,
         '#return_value' => $format->format,
         '#parents' => $parents,
