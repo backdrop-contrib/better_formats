@@ -17,6 +17,10 @@
  * @see better_formats_defaults_admin_form_submit()
  */
 function better_formats_defaults_admin_form() {
+  // Ensure all roles have a BF default entries in the database.
+  better_formats_check_roles();
+
+  // Build defaults form.
   $form = array(
     '#tree' => TRUE,
   );

@@ -227,7 +227,7 @@ function better_formats_node_type_form_submit($form, &$form_state) {
 }
 
 /**
- * Creates base format default entry for a newly created role.
+ * Creates base format default entry for a newly created role from role from.
  *
  * @see better_formats_form_alter()
  */
@@ -237,14 +237,22 @@ function better_formats_new_role($form, &$form_state) {
           FROM {role}
           ORDER BY rid DESC";
   $row = db_fetch_object(db_query_range($sql, 0, 1));
-  $rid = $row->rid;
 
-  // Create stubs in per role table.
-  $sql = "INSERT INTO {better_formats_defaults}
-          VALUES (%d, '%s', %d, %d, %d)";
-  db_query($sql, $rid, 'node', 0, 1, 25);
-  db_query($sql, $rid, 'comment', 0, 1, 25);
-  db_query($sql, $rid, 'block', 0, 1, 25);
+  better_formats_create_role($row->rid);
+}
+
+/**
+ * Creates base format default entry for a newly created role.
+ *
+ * @see better_formats_new_role()
+ */
+function better_formats_create_role($rid) {
+  // Create format default stubs for a role.
+  $types = array('node', 'comment', 'block');
+  foreach ($types as $type) {
+    $values = array($rid, $type, 0, 1, 25);
+    drupal_write_record('better_formats_defaults', $values);
+  }
 }
 
 /**
@@ -257,6 +265,23 @@ function better_formats_delete_role($form, &$form_state) {
   $sql = "DELETE FROM {better_formats_defaults}
           WHERE rid = %d";
   db_query($sql, $form['rid']['#value']);
+}
+
+/**
+ * Ensure that all roles have Better Format entries in the database.
+ */
+function better_formats_check_roles() {
+  // Get all roles that do not have BF entries.
+  $sql = "SELECT r.rid
+          FROM {role} r
+          LEFT JOIN {better_formats_defaults} bf
+            ON r.rid = bf.rid
+          WHERE bf.type_weight IS NULL";
+  $result = db_query($sql);
+  while ($role = db_fetch_object($result)) {
+    // Add BF entries.
+    better_formats_create_role($role->rid);
+  }
 }
 
 /**

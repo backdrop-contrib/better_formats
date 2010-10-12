@@ -9,6 +9,12 @@
  * default settings.
  */
 
+/**
+ * Implementation of hook_enable().
+ */
+function better_formats_enable() {
+  better_formats_check_roles();
+}
 
 /**
  * Implementation of hook_schema().
