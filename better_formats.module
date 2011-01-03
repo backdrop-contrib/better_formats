@@ -10,7 +10,7 @@
  */
 
 /**
- * Implementation of hook_help().
+ * Implements of hook_help().
  */
 function better_formats_help($path, $arg) {
   switch ($path) {
@@ -25,27 +25,48 @@ function better_formats_help($path, $arg) {
 }
 
 /**
- * Implementation of hook_perm().
+ * Implements of hook_perm().
  */
-function better_formats_perm() {
+function better_formats_permission() {
   return array(
-    'show format selection for nodes',
-    'show format selection for comments',
-    'show format selection for blocks',
-    'show format tips',
-    'show more format tips link',
-    'collapse format fieldset by default',
-    'collapsible format selection',
+    'show format selection for nodes' => array(
+      'title' => t('Show format selection for nodes'),
+      'description' => t(''),
+    ),
+    'show format selection for comments' => array(
+      'title' => t('show format selection for comments'),
+      'description' => t(''),
+    ),
+    'show format selection for blocks' => array(
+      'title' => t('show format selection for blocks'),
+      'description' => t(''),
+    ),
+    'show format tips' => array(
+      'title' => t('show format tips'),
+      'description' => t(''),
+    ),
+    'show more format tips link' => array(
+      'title' => t('show more format tips link'),
+      'description' => t(''),
+    ),
+    'collapse format fieldset by default' => array(
+      'title' => t('collapse format fieldset by default'),
+      'description' => t(''),
+    ),
+    'collapsible format selection' => array(
+      'title' => t('collapsible format selection'),
+      'description' => t(''),
+    ),
   );
 }
 
 /**
- * Implementation of hook_menu().
+ * Implements of hook_menu().
  */
 function better_formats_menu() {
   $items   = array();
 
-  $items['admin/settings/filters/settings'] = array(
+  $items['admin/config/content/formats/settings'] = array(
     'title' => 'Settings',
     'description' => 'Manage input formats',
     'page callback' => 'drupal_get_form',
@@ -55,7 +76,7 @@ function better_formats_menu() {
     'weight' => 3,
     'file' => 'better_formats_settings.admin.inc',
   );
-  $items['admin/settings/filters/defaults'] = array(
+  $items['admin/config/content/formats/defaults'] = array(
     'title' => 'Defaults',
     'description' => 'Manage input formats',
     'page callback' => 'drupal_get_form',
@@ -70,23 +91,23 @@ function better_formats_menu() {
 }
 
 /**
- * Implementation of hook_theme().
+ * Implements of hook_theme().
  */
 function better_formats_theme() {
   return array(
     'better_formats_defaults_admin_form' => array(
       'template' => 'better-formats-defaults-admin-form',
       'file' => 'better_formats_defaults.admin.inc',
-      'arguments' => array('form' => NULL),
+      'render element' => 'form',
     ),
     'better_formats_filter_tips_more_info' => array(
-      'arguments' => array(),
+      'variables' => array(),
     ),
   );
 }
 
 /**
- * Implementation of hook_form_alter().
+ * Implements of hook_form_alter().
  */
 function better_formats_form_alter(&$form, $form_state, $form_id) {
   // Alter new node and comment forms.
@@ -207,13 +228,21 @@ function better_formats_node_type_form_submit($form, &$form_state) {
   $node_type = trim($form_state['values']['type']);
 
   // Remove current db entries.
+  /*
   $sql = "DELETE FROM {better_formats_defaults}
           WHERE type='comment/%s' OR type='node/%s'";
   db_query($sql, $node_type, $node_type);
+  */
+  db_delete('better_formats_defaults')
+    ->condition('type', 'comment/' . $node_type)
+    ->condition('type', 'node/' . $node_type)
+    ->execute();
 
   // Insert defualt values into DB.
+  /*
   $sql = "INSERT INTO {better_formats_defaults}
           VALUES (%d, '%s', %d, %d, %d)";
+  */
   foreach ($form_state['values']['better_formats_defaults'] as $key => $values) {
     if (strpos($key, 'node-') === 0 || strpos($key, 'comment-') === 0) {
       list($type, $rid) = explode('-', $key);
@@ -262,9 +291,14 @@ function better_formats_create_role($rid) {
  */
 function better_formats_delete_role($form, &$form_state) {
   // Delete role from format manager table.
+  /*
   $sql = "DELETE FROM {better_formats_defaults}
           WHERE rid = %d";
   db_query($sql, $form['rid']['#value']);
+  */
+  db_delete('better_formats_defaults')
+    ->condition('rid', $form['rid']['#value'])
+    ->execute();
 }
 
 /**
@@ -285,22 +319,25 @@ function better_formats_check_roles() {
 }
 
 /**
- * Implementation of hook_node_type().
+ * Implements of hook_node_type_delete().
  */
-function better_formats_node_type($op, $info) {
-  if ($op === 'delete') {
-    // Delete per node type settings on node type delete.
-    $sql = "DELETE FROM {better_formats_defaults}
-            WHERE type IN ('node/%s', 'comment/%s')";
-    db_query($sql, $info->type, $info->type);
+function better_formats_node_type_delete( $info) {
+  // Delete per node type settings on node type delete.
 
-    // Delete node type variables.
-    variable_del('better_formats_allowed_' . $info->type);
-  }
+  $sql = "DELETE FROM {better_formats_defaults}
+          WHERE type IN ('node/%s', 'comment/%s')";
+  db_query($sql, $info->type, $info->type);
+  /*
+  db_delete('better_formats_defaults')
+    ->where("type IN ('node/%s', 'comment/%s')")
+    ->execute();
+  */
+  // Delete node type variables.
+  variable_del('better_formats_allowed_' . $info->type);
 }
 
 /**
- * Implementation of hook_elements().
+ * Implements of hook_elements().
  *
  * Adds a process function to CCK's text module FAPI elements.
  */

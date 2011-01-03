@@ -11,7 +11,7 @@
  *
  * @see better_formats_menu()
  */
-function better_formats_settings_admin_form() {
+function better_formats_settings_admin_form($form, &$form_state) {
   $form = array();
 
   $form['display'] = array(
