@@ -83,6 +83,7 @@ function better_formats_filter_process_format($element) {
   global $user;
 
   //$show_selection  = user_access('show format selection for ' . $mode . 's');
+  $show_selection  = user_access('show format selection for nodes');
   $show_tips       = user_access('show format tips');
   $show_tips_link  = user_access('show more format tips link');
 
@@ -129,6 +130,11 @@ function better_formats_filter_process_format($element) {
     '#attributes' => array('class' => array('filter-wrapper')),
   );
 
+  // Use the default format for this user if none was selected.
+  if (!isset($element['#format'])) {
+    $element['#format'] = filter_default_format($user);
+  }
+
   // Prepare text format guidelines.
   $element['format']['guidelines'] = array(
     '#type' => 'container',
@@ -137,7 +143,12 @@ function better_formats_filter_process_format($element) {
   );
   // Get a list of formats that the current user has access to.
   $formats = filter_formats($user);
+  $options = array();
   foreach ($formats as $format) {
+    // If not showing selection remove all formats except default.
+    if ($format->format !== $element['#format'] && !$show_selection) {
+      continue;
+    }
     $options[$format->format] = $format->name;
     if ($show_tips) {
       $element['format']['guidelines'][$format->format] = array(
@@ -147,17 +158,12 @@ function better_formats_filter_process_format($element) {
     }
   }
 
-  // Use the default format for this user if none was selected.
-  if (!isset($element['#format'])) {
-    $element['#format'] = filter_default_format($user);
-  }
-
   $element['format']['format'] = array(
     '#type' => 'select',
     '#title' => t('Text format'),
     '#options' => $options,
     '#default_value' => $element['#format'],
-    '#access' => count($formats) > 1,
+    '#access' => $show_selection ? count($formats) > 1 : FALSE,
     '#weight' => 10,
     '#attributes' => array('class' => array('filter-list')),
     '#parents' => array_merge($element['#parents'], array('format')),
@@ -170,6 +176,11 @@ function better_formats_filter_process_format($element) {
       '#attributes' => array('class' => array('filter-help')),
       '#weight' => 0,
     );
+  }
+
+  // Hide fieldset if not showing selector or tips.
+  if (!$show_selection && !$show_tips && !$show_tips_link) {
+    $element['format']['#access'] = FALSE;
   }
 
   $all_formats = filter_formats();
