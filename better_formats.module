@@ -19,10 +19,6 @@ function better_formats_permission() {
       'title' => t('show format selection for comments'),
       'description' => t(''),
     ),
-    'show format selection for blocks' => array(
-      'title' => t('show format selection for blocks'),
-      'description' => t(''),
-    ),
     'show format tips' => array(
       'title' => t('show format tips'),
       'description' => t(''),
@@ -82,8 +78,13 @@ function better_formats_element_info_alter(&$type) {
 function better_formats_filter_process_format($element) {
   global $user;
 
-  //$show_selection  = user_access('show format selection for ' . $mode . 's');
-  $show_selection  = user_access('show format selection for nodes');
+  //dpm($element);
+
+  $show_selection = TRUE;
+  if (isset($element['#entity_type'])) {
+    $show_selection  = user_access('show format selection for ' . $element['#entity_type'] . 's');
+  }
+  //$show_selection  = user_access('show format selection for nodes');
   $show_tips       = user_access('show format tips');
   $show_tips_link  = user_access('show more format tips link');
 
