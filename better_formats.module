@@ -81,13 +81,10 @@ function better_formats_element_info_alter(&$type) {
 function better_formats_filter_process_format($element) {
   global $user;
 
-  //dpm($element);
-
   $show_selection = TRUE;
   if (isset($element['#entity_type'])) {
-    $show_selection  = user_access('show format selection for ' . $element['#entity_type'] . 's');
+    $show_selection  = user_access('show format selection for ' . $element['#entity_type']);
   }
-  //$show_selection  = user_access('show format selection for nodes');
   $show_tips       = user_access('show format tips');
   $show_tips_link  = user_access('show more format tips link');
 
