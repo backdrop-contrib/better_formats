@@ -10,24 +10,27 @@
  * Implements of hook_perm().
  */
 function better_formats_permission() {
-  return array(
-    'show format selection for nodes' => array(
-      'title' => t('Show format selection for nodes'),
-      'description' => t(''),
-    ),
-    'show format selection for comments' => array(
-      'title' => t('show format selection for comments'),
-      'description' => t(''),
-    ),
+  $entities = entity_get_info();
+
+  $perms = array(
     'show format tips' => array(
       'title' => t('show format tips'),
-      'description' => t(''),
+      'description' => t('Toggle display of format description help.'),
     ),
     'show more format tips link' => array(
       'title' => t('show more format tips link'),
-      'description' => t(''),
+      'description' => t('Toggle display of the "More information about text formats" link.'),
     ),
   );
+  foreach ($entities as $type => $info) {
+    if ($info['fieldable']) {
+      $perms['show format selection for ' . $type] = array(
+        'title' => t('Show format selection for @entitys', array('@entity' => $type)),
+      );
+    }
+  }
+
+  return $perms;
 }
 
 /**
