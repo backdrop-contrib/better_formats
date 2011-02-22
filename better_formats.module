@@ -14,11 +14,11 @@ function better_formats_permission() {
 
   $perms = array(
     'show format tips' => array(
-      'title' => t('show format tips'),
+      'title' => t('Show format tips'),
       'description' => t('Toggle display of format description help.'),
     ),
     'show more format tips link' => array(
-      'title' => t('show more format tips link'),
+      'title' => t('Show more format tips link'),
       'description' => t('Toggle display of the "More information about text formats" link.'),
     ),
   );
