@@ -1,4 +1,3 @@
-; $Id$
 name = Better Formats
 description = Enhances the core input format system by managing input format defaults and settings.
 core = 6.x
