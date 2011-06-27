@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Enhances Drupal's core input format settings.
@@ -30,6 +29,36 @@ function better_formats_permission() {
   }
 
   return $perms;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function better_formats_menu() {
+  $items   = array();
+  $items['admin/config/content/formats/settings'] = array(
+    'title' => 'Settings',
+    'description' => 'Manage input formats',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('better_formats_admin_settings_form'),
+    'access arguments' => array('administer filters'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 3,
+    'file' => 'better_formats.admin_settings.inc',
+  );
+  /*
+  $items['admin/config/content/formats/defaults'] = array(
+    'title' => 'Defaults',
+    'description' => 'Manage input formats',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('better_formats_defaults_admin_form'),
+    'access arguments' => array('administer filters'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 2,
+    'file' => 'better_formats.admin_defaults.inc',
+  );
+  */
+  return $items;
 }
 
 /**
@@ -125,9 +154,13 @@ function better_formats_filter_process_format($element) {
   $element['#attached']['css'][] = $path . '/filter.css';
 
   // Setup child container for the text format widget.
+  $attributes = array('class' => array('filter-wrapper'));
+  if (!$show_selection && !$show_tips && !$show_tips_link) {
+    $attributes['style'] = isset($attributes['style']) ? $attributes['style'] . '; display: none;' : 'display: none;';
+  }
   $element['format'] = array(
     '#type' => 'fieldset',
-    '#attributes' => array('class' => array('filter-wrapper')),
+    '#attributes' => $attributes,
   );
 
   // Use the default format for this user if none was selected.
@@ -180,7 +213,7 @@ function better_formats_filter_process_format($element) {
 
   // Hide fieldset if not showing selector or tips.
   if (!$show_selection && !$show_tips && !$show_tips_link) {
-    $element['format']['#access'] = FALSE;
+    //$element['format']['#access'] = FALSE;
   }
 
   $all_formats = filter_formats();
@@ -229,3 +262,51 @@ function better_formats_filter_process_format($element) {
   return $element;
 }
 
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function better_formats_form_field_ui_field_edit_form_alter(&$form, &$form_state, $form_id) {
+  // Only alter fields with text processing and if admin has chosen.
+  if ($form['#instance']['settings']['text_processing'] == 1 && variable_get('better_formats_per_field_core', 0)) {
+    // Add a submit handler to save default values on empty fields.
+    $form['#submit'][] = 'better_formats_form_field_ui_edit_form_submit';
+  }
+}
+
+/**
+ * Submit handler for field instance edit form.
+ *
+ * Copied and slightly modifed from field_ui_field_edit_form_submit().
+ * @see field_ui_field_edit_form_submit()
+ */
+function better_formats_form_field_ui_edit_form_submit($form, &$form_state) {
+  $instance = $form_state['values']['instance'];
+  $field = $form_state['values']['field'];
+
+  // Only act on fields that have text processing enabled.
+  if ($instance['settings']['text_processing'] == 1) {
+    // Update any field settings that have changed.
+    $field_source = field_info_field($instance['field_name']);
+    $field = array_merge($field_source, $field);
+    field_update_field($field);
+
+    // Handle the default value.
+    if (isset($form['instance']['default_value_widget'])) {
+      $element = $form['instance']['default_value_widget'];
+
+      // Extract field values.
+      $items = array();
+      field_default_extract_form_values(NULL, NULL, $field, $instance, LANGUAGE_NONE, $items, $element, $form_state);
+      // Commenting out the below line to not remove emtpy fields.
+      //field_default_submit(NULL, NULL, $field, $instance, LANGUAGE_NONE, $items, $element, $form_state);
+
+      $instance['default_value'] = $items ? $items : NULL;
+    }
+
+    // Retrieve the stored instance settings to merge with the incoming values.
+    $instance_source = field_read_instance($instance['entity_type'], $instance['field_name'], $instance['bundle']);
+    $instance = array_merge($instance_source, $instance);
+    field_update_instance($instance);
+  }
+  // Messaging and redirect removed as this is added in the default handler.
+}
