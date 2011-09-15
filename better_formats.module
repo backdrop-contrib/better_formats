@@ -267,7 +267,8 @@ function better_formats_filter_process_format($element) {
  */
 function better_formats_form_field_ui_field_edit_form_alter(&$form, &$form_state, $form_id) {
   // Only alter fields with text processing and if admin has chosen.
-  if ($form['#instance']['settings']['text_processing'] == 1 && variable_get('better_formats_per_field_core', 0)) {
+  $text_processing = isset($form['#instance']['settings']['text_processing']) ? $form['#instance']['settings']['text_processing'] : NULL;
+  if ($text_processing == 1 && variable_get('better_formats_per_field_core', 0)) {
     // Add a submit handler to save default values on empty fields.
     $form['#submit'][] = 'better_formats_form_field_ui_edit_form_submit';
   }
