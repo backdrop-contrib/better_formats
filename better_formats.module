@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Enhances Drupal's core input format settings.
+ * Enhances Drupal's core text format settings.
  */
 
 /**
@@ -38,7 +38,7 @@ function better_formats_menu() {
   $items   = array();
   $items['admin/config/content/formats/settings'] = array(
     'title' => 'Settings',
-    'description' => 'Manage input formats',
+    'description' => 'Manage text formats',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('better_formats_admin_settings_form'),
     'access arguments' => array('administer filters'),
@@ -49,7 +49,7 @@ function better_formats_menu() {
   /*
   $items['admin/config/content/formats/defaults'] = array(
     'title' => 'Defaults',
-    'description' => 'Manage input formats',
+    'description' => 'Manage text formats',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('better_formats_defaults_admin_form'),
     'access arguments' => array('administer filters'),
@@ -65,196 +65,119 @@ function better_formats_menu() {
  * Implements of hook_element_info_alter().
  */
 function better_formats_element_info_alter(&$type) {
-  // Change text format processing on elements to our version.
-  if (isset($type['text_format']['#process'])) {
-    foreach ($type['text_format']['#process'] as &$callback) {
-      if ($callback === 'filter_process_format') {
-        $callback = 'better_formats_filter_process_format';
-      }
-    }
-  }
+  // Our process callback must run immediately after filter_process_format().
+  $filter_process_format_location = array_search('filter_process_format', $type['text_format']['#process']);
+  $replacement = array('filter_process_format', 'better_formats_filter_process_format');
+  array_splice($type['text_format']['#process'], $filter_process_format_location, 1, $replacement);
 }
 
 /**
- * Taken directly from filter_process_format() and modified.
+ * Process callback for form elements that have a text format selector attached.
+ *
+ * This callback runs after filter_process_format() and performs additional
+ * modifications to the form element.
+ *
  * @see filter_process_format()
- *
- * Expands an element into a base element with text format selector attached.
- *
- * The form element will be expanded into two separate form elements, one
- * holding the original element, and the other holding the text format selector:
- * - value: Holds the original element, having its #type changed to the value of
- *   #base_type or 'textarea' by default.
- * - format: Holds the text format fieldset and the text format selection, using
- *   the text format id specified in #format or the user's default format by
- *   default, if NULL.
- *
- * The resulting value for the element will be an array holding the value and the
- * format.  For example, the value for the body element will be:
- * @code
- *   $form_state['values']['body']['value'] = 'foo';
- *   $form_state['values']['body']['format'] = 'foo';
- * @endcode
- *
- * @param $element
- *   The form element to process. Properties used:
- *   - #base_type: The form element #type to use for the 'value' element.
- *     'textarea' by default.
- *   - #format: (optional) The text format id to preselect. If NULL or not set,
- *     the default format for the current user will be used.
- *
- * @return
- *   The expanded element.
  */
 function better_formats_filter_process_format($element) {
-  global $user;
+  // Before we make any modifications to the element, record whether or not
+  // filter_process_format() has determined that (for security reasons) the
+  // user is not allowed to make any changes to this field. (This will happen
+  // if the user does not have permission to use the currently-assigned text
+  // format.)
+  $access_denied_for_security = isset($element['format']['#access']) && !$element['format']['#access'];
 
+  // Now hide several parts of the element for cosmetic reasons (depending on
+  // the permissions of the current user).
   $show_selection = TRUE;
   if (isset($element['#entity_type'])) {
     $show_selection  = user_access('show format selection for ' . $element['#entity_type']);
   }
   $show_tips       = user_access('show format tips');
   $show_tips_link  = user_access('show more format tips link');
-
-  // Ensure that children appear as subkeys of this element.
-  $element['#tree'] = TRUE;
-  $blacklist = array(
-    // Make form_builder() regenerate child properties.
-    '#parents',
-    '#id',
-    '#name',
-    // Do not copy this #process function to prevent form_builder() from
-    // recursing infinitely.
-    '#process',
-    // Description is handled by theme_text_format_wrapper().
-    '#description',
-    // Ensure proper ordering of children.
-    '#weight',
-    // Properties already processed for the parent element.
-    '#prefix',
-    '#suffix',
-    '#attached',
-    '#processed',
-    '#theme_wrappers',
-  );
-  // Move this element into sub-element 'value'.
-  unset($element['value']);
-  foreach (element_properties($element) as $key) {
-    if (!in_array($key, $blacklist)) {
-      $element['value'][$key] = $element[$key];
-    }
+  if (!$show_selection) {
+    $element['format']['format']['#access'] = FALSE;
   }
-
-  $element['value']['#type'] = $element['#base_type'];
-  $element['value'] += element_info($element['#base_type']);
-
-  // Turn original element into a text format wrapper.
-  $path = drupal_get_path('module', 'filter');
-  $element['#attached']['js'][] = $path . '/filter.js';
-  $element['#attached']['css'][] = $path . '/filter.css';
-
-  // Setup child container for the text format widget.
-  $attributes = array('class' => array('filter-wrapper'));
+  if (!$show_tips) {
+    $element['format']['guidelines']['#access'] = FALSE;
+  }
+  if (!$show_tips_link) {
+    $element['format']['help']['#access'] = FALSE;
+  }
+  // Hide the entire text format fieldset if the user is not supposed to see
+  // anything inside it.
   if (!$show_selection && !$show_tips && !$show_tips_link) {
-    $attributes['style'] = isset($attributes['style']) ? $attributes['style'] . '; display: none;' : 'display: none;';
-  }
-  $element['format'] = array(
-    '#type' => 'fieldset',
-    '#attributes' => $attributes,
-  );
-
-  // Use the default format for this user if none was selected.
-  if (!isset($element['#format'])) {
-    $element['#format'] = filter_default_format($user);
+    $element['format']['#access'] = FALSE;
   }
 
-  // Prepare text format guidelines.
-  $element['format']['guidelines'] = array(
-    '#type' => 'container',
-    '#attributes' => array('class' => array('filter-guidelines')),
-    '#weight' => 20,
-  );
-  // Get a list of formats that the current user has access to.
-  $formats = filter_formats($user);
-  $options = array();
-  foreach ($formats as $format) {
-    // If not showing selection remove all formats except default.
-    if ($format->format !== $element['#format'] && !$show_selection) {
-      continue;
+  // If the element represents a field attached to an entity, we may need to
+  // adjust the allowed text format options. However, we don't want to touch
+  // this if filter_process_format() has determined that (for security reasons)
+  // the user is not allowed to make any changes; in that case, Drupal core
+  // will hide the format selector and force the field to be saved with its
+  // current values, and we should not do anything to alter that process.
+  if (isset($element['#entity_type']) && !$access_denied_for_security) {
+    $instance_info = field_info_instance($element['#entity_type'], $element['#field_name'], $element['#bundle']);
+    if (!empty($instance_info['settings']['better_formats_allowed_formats']) && !empty($instance_info['settings']['better_formats_allowed_formats_toggle'])) {
+      // Filter the list of available formats to those allowed on this field.
+      $allowed_fields = array_filter($instance_info['settings']['better_formats_allowed_formats']);
+      $options = &$element['format']['format']['#options'];
+      $options = array_intersect_key($options, $allowed_fields);
+
+      // If there is only one allowed format, deny access to the text format
+      // selector for cosmetic reasons, just like filter_process_format() does.
+      if (count($options) == 1) {
+        $element['format']['format']['#access'] = FALSE;
+        $show_selection = FALSE;
+      }
+
+      // If there are no allowed formats, we need to deny access to the entire
+      // field, since it doesn't make sense to add or edit content that does
+      // not have a text format.
+      if (empty($options)) {
+        $element['#access'] = FALSE;
+      }
+      // Otherwise, if the current default format is no longer one of the
+      // allowed options, a new default format must be assigned.
+      elseif (!isset($options[$element['format']['format']['#default_value']])) {
+        // If there is no text in the field, it is safe to automatically assign
+        // a new default format. We pick the first available option to be
+        // consistent with what filter_default_format() does.
+        if (!isset($element['value']['#default_value']) || $element['value']['#default_value']==='') {
+          $formats = array_keys($options);
+          $element['format']['format']['#default_value'] = reset($formats);
+        }
+        // Otherwise, it is unsafe to automatically assign a new default format
+        // (since this will display the content in a way that was not
+        // originally intended and might be dangerous, e.g. if the content
+        // contains an attempted XSS attack). A human must explicitly decide
+        // which new format to assign, so we force the field to be required but
+        // with no default value, similar to what filter_process_format() does.
+        // Although filter_process_format() limits this functionality to users
+        // with the 'administer filters' permission, we can allow it for any
+        // user here since we know that the user already has permission to use
+        // the current format; thus, there is no danger of exposing unformatted
+        // text (for example, raw PHP code) that they are otherwise not allowed
+        // to see.
+        else {
+          $element['format']['format']['#required'] = TRUE;
+          $element['format']['format']['#default_value'] = NULL;
+          // Force access to the format selector (it may have been denied
+          // previously for cosmetic reasons).
+          $element['format']['#access'] = TRUE;
+          $element['format']['format']['#access'] = TRUE;
+        }
+      }
     }
-    $options[$format->format] = $format->name;
-    if ($show_tips) {
-      $element['format']['guidelines'][$format->format] = array(
-        '#theme' => 'filter_guidelines',
-        '#format' => $format,
-      );
-    }
   }
 
-  $element['format']['format'] = array(
-    '#type' => 'select',
-    '#title' => t('Text format'),
-    '#options' => $options,
-    '#default_value' => $element['#format'],
-    '#access' => $show_selection ? count($formats) > 1 : FALSE,
-    '#weight' => 10,
-    '#attributes' => array('class' => array('filter-list')),
-    '#parents' => array_merge($element['#parents'], array('format')),
-  );
-
-  if ($show_tips_link) {
-    $element['format']['help'] = array(
-      '#type' => 'container',
-      '#theme' => 'filter_tips_more_info',
-      '#attributes' => array('class' => array('filter-help')),
-      '#weight' => 0,
-    );
-  }
-
-  // Hide fieldset if not showing selector or tips.
-  if (!$show_selection && !$show_tips && !$show_tips_link) {
-    //$element['format']['#access'] = FALSE;
-  }
-
-  $all_formats = filter_formats();
-  $format_exists = isset($all_formats[$element['#format']]);
-  $user_has_access = isset($formats[$element['#format']]);
-  $user_is_admin = user_access('administer filters');
-
-  // If the stored format does not exist, administrators have to assign a new
-  // format.
-  if (!$format_exists && $user_is_admin) {
-    $element['format']['format']['#required'] = TRUE;
-    $element['format']['format']['#default_value'] = NULL;
-    // Force access to the format selector (it may have been denied above if
-    // the user only has access to a single format).
-    $element['format']['format']['#access'] = TRUE;
-  }
-  // Disable this widget, if the user is not allowed to use the stored format,
-  // or if the stored format does not exist. The 'administer filters' permission
-  // only grants access to the filter administration, not to all formats.
-  elseif (!$user_has_access || !$format_exists) {
-    // Overload default values into #value to make them unalterable.
-    $element['value']['#value'] = $element['value']['#default_value'];
-    $element['format']['format']['#value'] = $element['format']['format']['#default_value'];
-
-    // Prepend #pre_render callback to replace field value with user notice
-    // prior to rendering.
-    $element['value'] += array('#pre_render' => array());
-    array_unshift($element['value']['#pre_render'], 'filter_form_access_denied');
-
-    // Cosmetic adjustments.
-    if (isset($element['value']['#rows'])) {
-      $element['value']['#rows'] = 3;
-    }
-    $element['value']['#disabled'] = TRUE;
-    $element['value']['#resizable'] = FALSE;
-
-    // Hide the text format selector and any other child element (such as text
-    // field's summary).
-    foreach (element_children($element) as $key) {
-      if ($key != 'value') {
-        $element[$key]['#access'] = FALSE;
+  // If the user is not supposed to see the text format selector, hide all
+  // guidelines except those associated with the default format. We need to do
+  // this at the end, since the above code may have altered the default format.
+  if (!$show_selection && isset($element['format']['format']['#default_value'])) {
+    foreach (element_children($element['format']['guidelines']) as $format) {
+      if ($format != $element['format']['format']['#default_value']) {
+        $element['format']['guidelines'][$format]['#access'] = FALSE;
       }
     }
   }
@@ -271,6 +194,53 @@ function better_formats_form_field_ui_field_edit_form_alter(&$form, &$form_state
   if ($text_processing == 1 && variable_get('better_formats_per_field_core', 0)) {
     // Add a submit handler to save default values on empty fields.
     $form['#submit'][] = 'better_formats_form_field_ui_edit_form_submit';
+  }
+
+  // If the field is a format-using text field, allow the admin to configure
+  // which formats are allowed here.
+  if ($text_processing) {
+    $settings =& $form['instance']['settings'];
+
+    foreach (filter_formats() as $format_id => $format) {
+      $format_options[$format_id] = $format->name;
+    }
+
+    $defaults_toggle = isset($form['#instance']['settings']['better_formats_allowed_formats_toggle']) ? $form['#instance']['settings']['better_formats_allowed_formats_toggle'] : FALSE;
+    $defaults = isset($form['#instance']['settings']['better_formats_allowed_formats']) ? $form['#instance']['settings']['better_formats_allowed_formats'] : array();
+    if (empty($defaults)) {
+      $defaults = array_keys($format_options);
+    }
+
+    // We have to set an explicit weight here so that we can put the allowed
+    // formats list after it.
+    $settings['text_processing']['#weight'] = -3;
+
+    $settings['better_formats_allowed_formats_toggle'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Limit allowed text formats'),
+      '#description' => t('Check the allowed formats below. If checked available text formats can be chosen below.'),
+      '#weight' => -2,
+      '#default_value' => $defaults_toggle,
+      '#states' => array(
+        'visible' => array(
+          ':input[name="instance[settings][text_processing]"]' => array('value' => '1'),
+        ),
+      ),
+    );
+    $settings['better_formats_allowed_formats'] = array(
+      '#type' => 'checkboxes',
+      '#title' => t('Allowed formats'),
+      '#options' => $format_options,
+      '#description' => t('Select the text formats allowed for this field. Note that not all of these may appear if a user does not have permission to use them.'),
+      '#weight' => -1,
+      '#default_value' => $defaults,
+      '#states' => array(
+        'visible' => array(
+          ':input[name="instance[settings][text_processing]"]' => array('value' => '1'),
+          ':input[name="instance[settings][better_formats_allowed_formats_toggle]"]' => array('checked' => TRUE),
+        ),
+      ),
+    );
   }
 }
 
