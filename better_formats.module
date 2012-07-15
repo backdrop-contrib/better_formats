@@ -269,7 +269,7 @@ function better_formats_field_settings_form($bf_form = array()) {
   $form['better_formats']['allowed_formats_toggle'] = array(
     '#type' => 'checkbox',
     '#title' => t('Limit allowed text formats'),
-    '#description' => t('Check the allowed formats below. If checked available text formats can be chosen below.'),
+    '#description' => t('Check the allowed formats below. If checked available text formats can be chosen.'),
     '#weight' => 1,
     '#default_value' => $allowed_toggle_default,
   );
@@ -277,7 +277,7 @@ function better_formats_field_settings_form($bf_form = array()) {
     '#type' => 'checkboxes',
     '#title' => t('Allowed formats'),
     '#options' => $allowed_options,
-    '#description' => t('Select the text formats allowed for this field. Note that not all of these may appear if a user does not have permission to use them.'),
+    '#description' => t('Select the text formats allowed for this field. Note that not all of these may appear on the form if a user does not have permission to use them. <strong>Warning:</strong> This affects existing content which may leave you unable to edit some fields. If that happens you must allow the format that field was saved in here.'),
     '#weight' => 2,
     '#default_value' => $allowed_defaults,
     '#states' => array(
@@ -292,7 +292,7 @@ function better_formats_field_settings_form($bf_form = array()) {
   $form['better_formats']['default_order_toggle'] = array(
     '#type' => 'checkbox',
     '#title' => t('Override default order'),
-    '#description' => t('Override the gloabl order that will determine the default text format a user will get on entity creation.'),
+    '#description' => t('Override the gloabl order that will determine the default text format a user will get <strong>only on entity creation</strong>.'),
     '#weight' => 3,
     '#default_value' => $order_toggle_default,
   );
