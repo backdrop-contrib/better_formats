@@ -216,15 +216,15 @@ function better_formats_text_format_sort($a, $b) {
 function better_formats_form_field_ui_field_edit_form_alter(&$form, &$form_state, $form_id) {
   $settings = $form['#instance']['settings'];
   // Only alter fields with text processing and if admin has chosen.
-  $text_processing = isset($settings['text_processing']) ? $settings['text_processing'] : NULL;
-  if ($text_processing == 1 && variable_get('better_formats_per_field_core', 0)) {
+  $text_processing = isset($settings['text_processing']);
+  if ($text_processing && variable_get('better_formats_per_field_core', 0)) {
     // Add a submit handler to save default values on empty fields.
     $form['#submit'][] = 'better_formats_form_field_ui_edit_form_submit';
   }
 
   // If the field is a format-using text field, allow the admin to configure
   // which formats are allowed here.
-  if (isset($text_processing)) {
+  if ($text_processing) {
     // We have to set an explicit weight here so that we can put the allowed
     // formats list after it.
     $form['instance']['settings']['text_processing']['#weight'] = -3;
