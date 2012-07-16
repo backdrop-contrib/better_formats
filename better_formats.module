@@ -104,11 +104,6 @@ function better_formats_filter_process_format($element) {
   if (!$show_tips_link) {
     $element['format']['help']['#access'] = FALSE;
   }
-  // Hide the entire text format fieldset if the user is not supposed to see
-  // anything inside it.
-  if (!$show_selection && !$show_tips && !$show_tips_link) {
-    $element['format']['#access'] = FALSE;
-  }
 
   // If the element represents a field attached to an entity, we may need to
   // adjust the allowed text format options. However, we don't want to touch
@@ -200,6 +195,12 @@ function better_formats_filter_process_format($element) {
         $element['format']['guidelines'][$format]['#access'] = FALSE;
       }
     }
+  }
+
+  // Hide the entire text format fieldset if the user is not supposed to see
+  // anything inside it.
+  if (!$show_selection && !$show_tips && !$show_tips_link) {
+    $element['format']['#access'] = FALSE;
   }
 
   return $element;
