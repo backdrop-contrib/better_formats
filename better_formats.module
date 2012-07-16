@@ -238,10 +238,10 @@ function better_formats_form_field_ui_field_edit_form_alter(&$form, &$form_state
 }
 
 /**
- * Helper function to generate our draggable table form for format lists
+ * Build the settings form for Field API fields.
  *
- * @param $defaults
- *   A keyed array of the default values for the form
+ * @param $bf_form
+ *   The existing better formats settings form from the form element.
  */
 function better_formats_field_settings_form($bf_form = array()) {
   $formats = filter_formats();
