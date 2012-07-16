@@ -129,7 +129,9 @@ function better_formats_filter_process_format($element) {
 
         $options = array();
         foreach ($order as $id => $weight) {
-          $options[$id] = $element['format']['format']['#options'][$id];
+          if (isset($element['format']['format']['#options'][$id])) {
+            $options[$id] = $element['format']['format']['#options'][$id];
+          }
         }
         $element['format']['format']['#options'] = $options;
         $element['format']['format']['#default_value'] = array_shift(array_keys($options));
