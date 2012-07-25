@@ -200,7 +200,7 @@ function better_formats_filter_process_format($element) {
   // Hide the entire text format fieldset if the user is not supposed to see
   // anything inside it.
   if (!$show_selection && !$show_tips && !$show_tips_link) {
-    $element['format']['#access'] = FALSE;
+    $element['format']['#type'] = 'container';
   }
 
   return $element;
