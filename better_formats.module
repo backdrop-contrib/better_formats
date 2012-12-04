@@ -129,7 +129,8 @@ function better_formats_filter_process_format($element) {
           }
         }
         $element['format']['format']['#options'] = $options;
-        $element['format']['format']['#default_value'] = array_shift(array_keys($options));
+        $options_keys = array_keys($options);
+        $element['format']['format']['#default_value'] = array_shift($options_keys);
       }
     }
 
