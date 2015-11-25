@@ -13,7 +13,7 @@
  */
 function betterFormatsInit() {
   // Set default settings check for use of global allowed formats.
-  Drupal.settings.betterFormats = {"numChecked" : $('input.bf-allowed-formats:checked').length};
+  Backdrop.settings.betterFormats = {"numChecked" : $('input.bf-allowed-formats:checked').length};
 
   // Collapsing the input format setting after the weight columns have been hidden.
   $('.input-format-settings > legend > a').click();
@@ -23,7 +23,7 @@ function betterFormatsInit() {
   formatBoxes.click(function() {
     betterFormatsToggleFormats($(this));
   });
-  if (Drupal.settings.betterFormats.numChecked > 0) {
+  if (Backdrop.settings.betterFormats.numChecked > 0) {
     formatBoxes.each(function() {
       betterFormatsToggleFormats($(this), true);
     });
@@ -40,7 +40,7 @@ function betterFormatsInit() {
  */
 function betterFormatsToggleFormats(el, init) {
   // Hide all formats except site default when the first box is checked.
-  if (Drupal.settings.betterFormats.numChecked === 0) {
+  if (Backdrop.settings.betterFormats.numChecked === 0) {
     $('select.bf-default-formats option[value != "0"][value != "' + el.val() + '"]').removeAttr('selected').hide();
   }
 
@@ -57,16 +57,16 @@ function betterFormatsToggleFormats(el, init) {
   // Do not modify count on intial run.
   if (!init) {
     if (el.attr('checked')) {
-      Drupal.settings.betterFormats.numChecked += 1;
+      Backdrop.settings.betterFormats.numChecked += 1;
     }
-    else if (Drupal.settings.betterFormats.numChecked > 0) {
+    else if (Backdrop.settings.betterFormats.numChecked > 0) {
       // Keep num_checked from going below zero.
-      Drupal.settings.betterFormats.numChecked -= 1;
+      Backdrop.settings.betterFormats.numChecked -= 1;
     }
   }
 
   // Show all globally allowed formats if no boxes are checked.
-  if (Drupal.settings.betterFormats.numChecked === 0) {
+  if (Backdrop.settings.betterFormats.numChecked === 0) {
     // Show global formats available to roles because no format allowed boxes are checked.
     $('select.bf-default-formats option').show();
   }

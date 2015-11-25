@@ -15,7 +15,11 @@
  * @see better_formats_defaults_admin_form_validate()
  * @see better_formats_defaults_admin_form_submit()
  */
-function better_formats_defaults_admin_form() {
+function better_formats_defaults_admin_form($form, &$form_state) {
+  // Ensure all roles have a BF default entries in the database.
+  better_formats_check_roles();
+
+  // Build defaults form.
   $form = array(
     '#tree' => TRUE,
   );
@@ -82,7 +86,7 @@ function better_formats_defaults_admin_form_submit($form, &$form_state) {
     }
   }
 
-  drupal_set_message(t('Defaults have been saved.'));
+  backdrop_set_message(t('Defaults have been saved.'));
 }
 
 /**
@@ -99,7 +103,7 @@ function better_formats_get_role_default_fields($mode, $node_type = '') {
   $form = array();
   $format_options = better_formats_get_formats_per_role();
   $type = $types = $mode;
-  $per_node_type = variable_get('better_formats_per_node_type', FALSE);
+  $per_node_type = config_get('better_formats.settings', 'better_formats_per_node_type');
 
   if ($per_node_type && $node_type) {
     $type = $mode . '/' . $node_type;
@@ -149,7 +153,7 @@ function better_formats_get_role_default_fields($mode, $node_type = '') {
  *
  * Gets all formats then creates an array keyed by role IDs
  * that lists the formats available to that role. This is determined
- * by Drupal core's format permissions set at
+ * by Backdrop core's format permissions set at
  * admin/settings/filters/[filter_id].
  *
  * @return
@@ -224,13 +228,13 @@ function template_preprocess_better_formats_defaults_admin_form(&$vars) {
       $form_row['weight']['#attributes']['class'] = 'better-formats-role-' . $type . '-weight';
 
       $row = new stdClass();
-      $row->role = drupal_render($form_row['role']);
-      $row->format_select = drupal_render($form_row['format']);
-      $row->weight_select = drupal_render($form_row['weight']);
+      $row->role = backdrop_render($form_row['role']);
+      $row->format_select = backdrop_render($form_row['format']);
+      $row->weight_select = backdrop_render($form_row['weight']);
 
       $vars[$type . '_default_rows'][$key] = $row;
     }
   }
 
-  $vars['form_submit'] = drupal_render($vars['form']);
+  $vars['form_submit'] = backdrop_render($vars['form']);
 }

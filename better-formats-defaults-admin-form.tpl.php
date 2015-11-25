@@ -17,9 +17,9 @@
 ?>
 <?php
   // Add table javascript
-  drupal_add_tabledrag('node-format-defaults', 'order', 'sibling', 'better-formats-role-node-weight');
-  drupal_add_tabledrag('comment-format-defaults', 'order', 'sibling', 'better-formats-role-comment-weight');
-  drupal_add_tabledrag('block-format-defaults', 'order', 'sibling', 'better-formats-role-block-weight');
+  backdrop_add_tabledrag('node-format-defaults', 'order', 'sibling', 'better-formats-role-node-weight');
+  backdrop_add_tabledrag('comment-format-defaults', 'order', 'sibling', 'better-formats-role-comment-weight');
+  backdrop_add_tabledrag('block-format-defaults', 'order', 'sibling', 'better-formats-role-block-weight');
 ?>
 <div class="description">
   <?php print '<p><strong>' . t('Defaults only affect NEW content NOT existing content.') . '</strong></p>'; ?>
