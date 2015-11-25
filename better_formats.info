@@ -1,0 +1,6 @@
+name = Better Formats
+description = Enhances the core input format system by managing input format defaults and settings.
+version = 1.x-1.1
+backdrop = 1.x
+type = module
+configure = admin/config/content/formats
