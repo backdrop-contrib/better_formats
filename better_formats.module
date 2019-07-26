@@ -58,18 +58,6 @@ function better_formats_menu() {
     'weight' => 3,
     'file' => 'better_formats.admin_settings.inc',
   );
-  /*
-  $items['admin/config/content/formats/defaults'] = array(
-    'title' => 'Defaults',
-    'description' => 'Manage text formats',
-    'page callback' => 'backdrop_get_form',
-    'page arguments' => array('better_formats_defaults_admin_form'),
-    'access arguments' => array('administer filters'),
-    'type' => MENU_LOCAL_TASK,
-    'weight' => 2,
-    'file' => 'better_formats.admin_defaults.inc',
-  );
-  */
   return $items;
 }
 

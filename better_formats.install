@@ -18,3 +18,32 @@ function better_formats_install() {
     ->condition('name', 'better_formats')
     ->execute();
 }
+
+/**
+ * @defgroup updates-7.x-to-1.x Updates from 7.x to 1.x
+ * @{
+ * Update functions from Drupal 7.x to Backdrop CMS 1.x.
+ */
+
+/**
+ * Move Better Formats settings from variables to config. It
+ * will ignore variables if config was already updated manually.
+ */
+
+function better_formats_update_1000() {
+  // Migrate variables to config.
+  $config = config('better_format.settings');
+  if (NULL === $config->get('better_formats_per_field_core')) {
+    $config->set('better_formats_per_field_core', update_variable_get('better_formats_per_field_core', 0));
+  }
+
+  $config->save();
+
+  // Delete variables.
+  update_variable_del('better_formats_per_field_core');
+}
+
+/*
+ * @} End of "defgroup updates-7.x-to-1.x"
+ * The next series of updates should start at 2000.
+ */
