@@ -21,7 +21,7 @@ function better_formats_permission() {
     ),
   );
   foreach ($entities as $type => $info) {
-    if ($info['fieldable']) {
+    if (isset($info['fieldable']) && !empty($info['fieldable'])) {
       $perms['show format selection for ' . $type] = array(
         'title' => t('Show format selection for @entitys', array('@entity' => $type)),
       );
