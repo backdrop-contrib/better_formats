@@ -211,7 +211,7 @@ function better_formats_filter_process_format($element) {
  * Sort text formats by weight.
  */
 function better_formats_text_format_sort($a, $b) {
-  return $a['weight'] > $b['weight'];
+  return $a['weight'] <=> $b['weight'];
 }
 
 /**
