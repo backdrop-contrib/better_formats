@@ -203,7 +203,6 @@ function better_formats_filter_process_format($element) {
         // to see.
         else {
           $element['format']['format']['#required'] = TRUE;
-          $element['format']['format']['#default_value'] = NULL;
           // Force access to the format selector (it may have been denied
           // previously for cosmetic reasons).
           $element['format']['#access'] = TRUE;
