@@ -1,4 +1,5 @@
 name = Better Formats
 description = Enhances the core input format system by managing input format defaults and settings.
 core = 7.x
+php = 8.0
 configure = admin/config/content/formats
