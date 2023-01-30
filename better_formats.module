@@ -411,3 +411,12 @@ function theme_better_formats_field_default_order(&$variables) {
 
   return $output;
 }
+
+/**
+ * Implements hook_field_info_alter().
+ */
+function better_formats_field_info_alter(&$info) {
+  $default = variable_get('better_formats_long_text_processing', 0);
+  $info['text_long']['instance_settings']['text_processing'] = $default;
+  $info['text_with_summary']['instance_settings']['text_processing'] = $default;
+}
