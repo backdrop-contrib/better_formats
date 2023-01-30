@@ -89,12 +89,12 @@ function better_formats_filter_process_format($element) {
 
   // Now hide several parts of the element for cosmetic reasons (depending on
   // the permissions of the current user).
-  $show_selection = TRUE;
-  if (isset($element['#entity_type'])) {
+  $show_selection = isset($element['better_formats']['#show_selection']) ? $element['better_formats']['#show_selection'] : TRUE;
+  if (!isset($element['better_formats']['#show_selection']) && isset($element['#entity_type'])) {
     $show_selection  = user_access('show format selection for ' . $element['#entity_type']);
   }
-  $show_tips       = user_access('show format tips');
-  $show_tips_link  = user_access('show more format tips link');
+  $show_tips       = isset($element['better_formats']['#show_tips']) ? $element['better_formats']['#show_tips'] : user_access('show format tips');
+  $show_tips_link  = isset($element['better_formats']['#show_tips_link']) ? $element['better_formats']['#show_tips_link'] : user_access('show more format tips link');
   if (!$show_selection) {
     $element['format']['format']['#access'] = FALSE;
   }
