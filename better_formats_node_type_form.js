@@ -6,6 +6,8 @@
  * Fixes bug that shows weight field when drag and drop is enabled
  * because the field is hidden by default.
  * Also hides formats that are not available per the Allowed checkboxes.
+ *
+ * @todo remove this file. This file is only referenced in commented out code.
  */
 
 /**
