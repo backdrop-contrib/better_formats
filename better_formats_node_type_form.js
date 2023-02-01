@@ -9,7 +9,7 @@
  */
 
 /**
- * Initialize Better Formats setttings and defaults.
+ * Initialize Better Formats settings and defaults.
  */
 function betterFormatsInit() {
   // Set default settings check for use of global allowed formats.

@@ -7,13 +7,13 @@
 /**
  * Implements hook_config_info().
  */
-function better_formats_config_info()
-{
-    $prefixes['better_formats.settings'] = array(
-        'label' => t('Better Formats settings'),
-        'group' => t('Configuration')
-    );
-    return $prefixes;
+function better_formats_config_info() {
+  $prefixes['better_formats.settings'] = array(
+    'label' => t('Better Formats settings'),
+    'group' => t('Configuration')
+  );
+
+  return $prefixes;
 }
 
 /**
@@ -47,7 +47,7 @@ function better_formats_permission() {
  * Implements hook_menu().
  */
 function better_formats_menu() {
-  $items   = array();
+  $items = array();
   $items['admin/config/content/formats/settings'] = array(
     'title' => 'Settings',
     'description' => 'Manage text formats',
@@ -58,6 +58,7 @@ function better_formats_menu() {
     'weight' => 3,
     'file' => 'better_formats.admin_settings.inc',
   );
+
   return $items;
 }
 

@@ -3,3 +3,6 @@ description = Enhances the core input format system by managing input format def
 backdrop = 1.x
 type = module
 configure = admin/config/content/formats
+package = Input filters
+tags[] = fields
+tags[] = filters
