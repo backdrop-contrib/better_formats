@@ -129,7 +129,7 @@ function better_formats_filter_process_format($element) {
   $show_tips       = isset($element['better_formats']['#show_tips']) ? $element['better_formats']['#show_tips'] : user_access('show format tips');
   $show_tips_link  = isset($element['better_formats']['#show_tips_link']) ? $element['better_formats']['#show_tips_link'] : user_access('show more format tips link');
   if (!$show_selection) {
-    if (count($element['format']['format']['#options']) >= 1 && variable_get('better_formats_per_field_core', 0)) {
+    if (count($element['format']['format']['#options']) >= 1 && config_get('better_formats.settings', 'better_formats_per_field_core')) {
       $element['#element_validate'] = array('better_formats_only_allow_defaults_if_limited_by_permission');
       $element['format']['format']['#type'] = 'hidden';
     }
