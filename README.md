@@ -105,7 +105,7 @@ dragonwize https://www.drupal.org/u/dragonwize
 MAINTAINERS
 -----------
 
-- seeking
+- [herbdool](https://github.com/herbdool)
 
 Ported to Backdrop by:
 
