@@ -377,12 +377,26 @@ function better_formats_form_field_ui_edit_form_submit($form, &$form_state) {
   $instance = $form_state['values']['instance'];
   $field = $form_state['values']['field'];
 
+  // Save field cardinality.
+  $cardinality = $field['cardinality'];
+  $cardinality_number = $field['cardinality_number'];
+  if ($cardinality == 'number') {
+    $cardinality = $cardinality_number;
+  }
+  $field['cardinality'] = $cardinality;
+
   // Only act on fields that have text processing enabled.
   if ($instance['settings']['text_processing'] == 1) {
     // Update any field settings that have changed.
     $field_source = field_info_field($instance['field_name']);
     $field = array_merge($field_source, $field);
-    field_update_field($field);
+    try {
+      field_update_field($field);
+    }
+    catch (Exception $e) {
+      backdrop_set_message(t('Attempt to update field %label failed: %message.', array('%label' => $instance['label'], '%message' => $e->getMessage())), 'error');
+      return;
+    }
 
     // Handle the default value.
     if (isset($form['instance']['default_value_widget'])) {
@@ -391,7 +405,7 @@ function better_formats_form_field_ui_edit_form_submit($form, &$form_state) {
       // Extract field values.
       $items = array();
       field_default_extract_form_values(NULL, NULL, $field, $instance, LANGUAGE_NONE, $items, $element, $form_state);
-      // Commenting out the below line to not remove emtpy fields.
+      // Commenting out the below line to not remove empty fields.
       //field_default_submit(NULL, NULL, $field, $instance, LANGUAGE_NONE, $items, $element, $form_state);
 
       $instance['default_value'] = $items ? $items : NULL;
