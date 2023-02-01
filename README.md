@@ -15,7 +15,6 @@ Install this module using the official Backdrop CMS instructions at <https://bac
    3. format selection for [entity]
 
    #3 is actually several permissions. There is one for each entity in your site.
-
 2. Simple field level default format.
    This allows you set a field level default format using the standard "Default Value"
    setting of a field. This is only possibly normally if you enter something in the
@@ -31,6 +30,26 @@ Install this module using the official Backdrop CMS instructions at <https://bac
    6. You will now see a "Text format" dropdown below your field in the
       "Default Value" area. Set the default format in the dropdown.
    7. Save the field. Default will now be used on all new content forms for that field.
+3. FAPI integration.
+   You are able to trigger Better Formats programatically on custom forms built
+   with the form API:
+
+```php
+      function my_example_form($form, &$form_state) {
+         $form = array();
+         $form['example_text_field'] = array(
+           '#title' => 'Contribution message ',
+           '#type' => 'text_format',
+           '#format' => 'teaser_text',
+         );
+         $form['example_text_field']['better_formats'] = array(
+           '#show_selection' => FALSE,
+           '#show_tips' => FALSE,
+           '#show_tips_link' => FALSE,
+         );
+         return $form;
+      }
+```
 
 Permissions
 -----------

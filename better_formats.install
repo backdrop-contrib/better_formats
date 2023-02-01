@@ -32,7 +32,7 @@ function better_formats_install() {
 
 function better_formats_update_1000() {
   // Migrate variables to config.
-  $config = config('better_format.settings');
+  $config = config('better_formats.settings');
   if (NULL === $config->get('better_formats_per_field_core')) {
     $config->set('better_formats_per_field_core', update_variable_get('better_formats_per_field_core', 0));
   }
@@ -41,6 +41,21 @@ function better_formats_update_1000() {
 
   // Delete variables.
   update_variable_del('better_formats_per_field_core');
+}
+
+/**
+ * Migrate better_formats_long_text_processing variable to config.
+ */
+function better_formats_update_1001() {
+  $config = config('better_formats.settings');
+  if (NULL === $config->get('better_formats_long_text_processing')) {
+    $config->set('better_formats_long_text_processing', update_variable_get('better_formats_long_text_processing', 0));
+  }
+
+  $config->save();
+
+  // Delete variables.
+  update_variable_del('better_formats_long_text_processing');
 }
 
 /*

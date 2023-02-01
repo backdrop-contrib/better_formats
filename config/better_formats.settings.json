@@ -1,4 +1,5 @@
 {
     "_config_name": "better_formats.settings",
-    "better_formats_per_field_core": 0
+    "better_formats_per_field_core": 0,
+    "better_formats_long_text_processing": 0
 }
