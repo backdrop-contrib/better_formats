@@ -2,7 +2,6 @@ name = Better Formats
 description = Enhances the core input format system by managing input format defaults and settings.
 backdrop = 1.x
 type = module
-php = 8.0
 configure = admin/config/content/formats
 package = Input filters
 tags[] = fields
